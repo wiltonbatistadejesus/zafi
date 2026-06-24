@@ -1,0 +1,55 @@
+/* Import Inter from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* -----------------------------------------------
+   Zafi — Global base styles
+   ----------------------------------------------- */
+
+:root {
+  --color-blue: #1565ff;
+  --color-blue-dark: #0d47d9;
+  --color-bg: #e9f0ff;
+  --color-text: #0f172a;
+  --color-secondary: #64748b;
+  --color-border: #e2e8f0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: 'Inter', sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Remove default button outline for mouse users, keep for keyboard */
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Custom scrollbar (optional, looks nice on desktop) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
