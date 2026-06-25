@@ -35,7 +35,7 @@ export default function Logo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
           aria-hidden
           style={{
             position: 'absolute',
-            top: '0.08em',
+            top: '0.22em',
             left: '50%',
             transform: 'translateX(-50%)',
             width: '0.17em',
