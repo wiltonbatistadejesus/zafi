@@ -59,6 +59,7 @@ export default function Home() {
     email: string
     income: number
     estimatedMonths: number | null
+    contactConsent: boolean
   }) {
     setLeadName(lead.name)
     setLeadEstMonths(lead.estimatedMonths)
@@ -74,6 +75,7 @@ export default function Home() {
           totalDebt: calcTotalDebt(debts),
           income: lead.income,
           estimatedMonths: lead.estimatedMonths,
+          contactConsent: lead.contactConsent,
         }),
       })
     } catch (err) {

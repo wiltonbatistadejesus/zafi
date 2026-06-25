@@ -12,7 +12,7 @@ import CurrencyInput from '@/components/CurrencyInput'
 
 interface SimulatorProps {
   debts: Debt[]
-  onNext: (lead: { name: string; email: string; income: number; estimatedMonths: number | null }) => void
+  onNext: (lead: { name: string; email: string; income: number; estimatedMonths: number | null; contactConsent: boolean }) => void
   onBack: () => void
 }
 
@@ -20,6 +20,7 @@ export default function Simulator({ debts, onNext, onBack }: SimulatorProps) {
   const [incomeMasked, setIncomeMasked] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [contactConsent, setContactConsent] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
   const income = parseBRL(incomeMasked)
@@ -34,6 +35,7 @@ export default function Simulator({ debts, onNext, onBack }: SimulatorProps) {
       email: email.trim(),
       income,
       estimatedMonths: result?.estimatedMonths ?? null,
+      contactConsent,
     })
   }
 
@@ -126,10 +128,23 @@ export default function Simulator({ debts, onNext, onBack }: SimulatorProps) {
             className="w-full px-4 py-3 rounded-xl border border-zafi-border text-zafi-text
                        placeholder-zafi-secondary focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
           />
+          {/* Consentimento de contato — LGPD */}
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={contactConsent}
+              onChange={(e) => setContactConsent(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-zafi-border accent-blue-600 cursor-pointer flex-shrink-0"
+            />
+            <span className="text-zafi-secondary text-xs leading-relaxed">
+              Aceito ser contactado por parceiros financeiros com ofertas de crédito e renegociação de dívidas adequadas ao meu perfil. (opcional)
+            </span>
+          </label>
+
           <p className="text-zafi-secondary text-xs">
-            Seus dados são protegidos e nunca serão vendidos.{' '}
+            Seus dados são protegidos pela LGPD.{' '}
             <a href="/privacy" target="_blank" className="underline text-zafi-blue">
-              Política de privacidade (LGPD)
+              Política de privacidade
             </a>
           </p>
 

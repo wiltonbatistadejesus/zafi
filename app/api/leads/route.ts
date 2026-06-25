@@ -19,6 +19,7 @@ interface LeadPayload {
   totalDebt: number
   income?: number
   estimatedMonths?: number | null
+  contactConsent?: boolean
 }
 
 export async function POST(req: NextRequest) {
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
         total_debt: body.totalDebt,
         income: body.income ?? null,
         est_months: body.estimatedMonths ?? null,
+        contact_consent: body.contactConsent ?? false,
       },
     ])
 
