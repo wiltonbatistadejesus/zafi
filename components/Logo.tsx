@@ -18,24 +18,31 @@ export default function Logo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
       {/* "zaf" in black */}
       zaf
 
-      {/* "i" with blue dot — using dotless i + custom blue dot */}
-      <span className="relative inline-block" style={{ color: '#0f172a' }}>
-        {/* dotless i unicode character */}
+      {/* "i" with blue dot — hide natural dot, overlay blue circle at correct position */}
+      <span
+        className="relative inline-block"
+        style={{
+          color: '#0f172a',
+          /* Hide the natural dot by clipping the top portion */
+          overflow: 'visible',
+        }}
+      >
+        {/* dotless i */}
         &#305;
 
-        {/* Blue dot above the "i" */}
+        {/* Blue dot positioned at the natural i-dot height */}
         <span
           aria-hidden
-          className="absolute"
           style={{
-            top: size === 'lg' ? '0.05em' : '0.03em',
+            position: 'absolute',
+            top: '0.08em',
             left: '50%',
             transform: 'translateX(-50%)',
-            width: '0.18em',
-            height: '0.18em',
+            width: '0.17em',
+            height: '0.17em',
             background: '#1565ff',
             borderRadius: '50%',
-            display: 'inline-block',
+            display: 'block',
           }}
         />
       </span>
