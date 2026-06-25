@@ -28,7 +28,7 @@ export default function Logo({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
           aria-hidden
           className="absolute"
           style={{
-            top: size === 'lg' ? '-0.15em' : '-0.12em',
+            top: size === 'lg' ? '0.05em' : '0.03em',
             left: '50%',
             transform: 'translateX(-50%)',
             width: '0.18em',
