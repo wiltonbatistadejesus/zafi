@@ -7,6 +7,7 @@ import { formatBRL } from '@/lib/calculations'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import Logo from '@/components/Logo'
+import AdBanner from '@/components/AdBanner'
 import Link from 'next/link'
 
 interface SolutionsProps {
@@ -47,7 +48,7 @@ const PARTNERS = [
     tag: 'Taxa menor',
     tagColor: 'bg-purple-100 text-purple-700',
     icon: '🔄',
-    url: 'https://www.bcb.gov.br/estabilidadefinanceira/portabilidade', // TODO: replace with affiliate URL
+    url: 'https://www.bcb.gov.br/estabilidadefinanceira/portabilidadecredito', // TODO: replace with affiliate URL
     highlight: false,
   },
 ]
@@ -124,6 +125,13 @@ export default function Solutions({ name, totalDebt, estimatedMonths }: Solution
           </div>
         </div>
       </Card>
+
+      {/* AdSense banner — aparece após os cards de parceiros */}
+      <AdBanner
+        adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SOLUTIONS || 'XXXXXXXXXX'}
+        adFormat="auto"
+        className="mb-4 rounded-xl overflow-hidden"
+      />
 
       {/* Footer */}
       <div className="text-center text-zafi-secondary text-xs space-y-1">
