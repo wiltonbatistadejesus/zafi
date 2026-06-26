@@ -2,7 +2,6 @@
 // Root Layout — wraps every page in the app
 // -----------------------------------------------
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -24,13 +23,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        {/* Google AdSense — só carrega quando o publisher ID estiver configurado */}
+        {/* Google AdSense — tag direta no HTML para que o rastreador do Google encontre */}
         {adsenseId && adsenseId !== 'ca-pub-XXXXXXXXXXXXXXXX' && (
-          <Script
+          // eslint-disable-next-line @next/next/no-sync-scripts
+          <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId}`}
             crossOrigin="anonymous"
-            strategy="afterInteractive"
           />
         )}
       </head>
