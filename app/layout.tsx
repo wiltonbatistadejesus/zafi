@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   keywords: ['dívidas', 'renegociação', 'finanças pessoais', 'sair das dívidas', 'zafi'],
   // og:image and other Open Graph tags — add before launch:
   // openGraph: { images: ['/og-image.png'] },
+  other: {
+    lomadee: '2324685',
+  },
 }
 
 export default function RootLayout({
