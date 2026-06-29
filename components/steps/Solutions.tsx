@@ -23,7 +23,7 @@ const ACORDOS = [
     tag: 'Mais popular',
     tagColor: 'bg-emerald-100 text-emerald-700',
     icon: '✅',
-    url: 'https://apretailer.com.br/click/6a3f408e2bfa813aa26ff5b5/187558/359422/subaccount',
+    url: '/go/acordo-certo',
     highlight: true,
   },
   {
@@ -33,7 +33,7 @@ const ACORDOS = [
     tag: 'Banco oficial',
     tagColor: 'bg-red-100 text-red-700',
     icon: '🏦',
-    url: 'https://apretailer.com.br/click/6a3f408e2bfa813ab73f7f95/187700/359422/subaccount',
+    url: '/go/santander-acordo',
     highlight: false,
   },
   {
@@ -43,7 +43,7 @@ const ACORDOS = [
     tag: 'Sem burocracia',
     tagColor: 'bg-blue-100 text-blue-700',
     icon: '⚡',
-    url: 'https://apretailer.com.br/click/6a3f408e2bfa813b02188995/177702/359422/subaccount',
+    url: '/go/super-sim',
     highlight: false,
   },
 ]
@@ -57,7 +57,7 @@ const CREDITO = [
     tag: 'Menor taxa',
     tagColor: 'bg-purple-100 text-purple-700',
     icon: '📉',
-    url: 'https://apretailer.com.br/click/6a3f408e2bfa813b0819e8c6/179945/359422/subaccount',
+    url: '/go/juros-baixos',
     highlight: true,
   },
   {
@@ -67,7 +67,7 @@ const CREDITO = [
     tag: 'Vários bancos',
     tagColor: 'bg-cyan-100 text-cyan-700',
     icon: '🔍',
-    url: 'https://apretailer.com.br/click/6a3f408d2bfa813b0e7707a3/180635/359422/subaccount',
+    url: '/go/finanzero',
     highlight: false,
   },
   {
@@ -77,7 +77,7 @@ const CREDITO = [
     tag: 'Para negativados',
     tagColor: 'bg-amber-100 text-amber-700',
     icon: '💛',
-    url: 'https://apretailer.com.br/click/6a3f408d2bfa813b0e7707a3/180635/359422/subaccount',
+    url: '/go/bom-pra-credito',
     highlight: false,
   },
   {
@@ -87,7 +87,7 @@ const CREDITO = [
     tag: 'Aprovação rápida',
     tagColor: 'bg-green-100 text-green-700',
     icon: '🚀',
-    url: 'https://apretailer.com.br/click/6a3f408d2bfa813ab73f7f94/184986/359422/subaccount',
+    url: '/go/consiga-mais',
     highlight: false,
   },
 ]
