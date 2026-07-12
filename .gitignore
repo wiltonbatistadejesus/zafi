@@ -16,6 +16,8 @@
 *.pem
 /coverage
 /.nyc_output
+*.tsbuildinfo
 
 # vercel
 .vercel
+.env*

@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // ── Partner map ─────────────────────────────────
 const PARTNERS: Record<string, string> = {
   'acordo-certo':    'https://apretailer.com.br/click/6a3f408e2bfa813aa26ff5b5/187558/359422/subaccount',
-  'santander-acordo':'https://apretailer.com.br/click/6a3f408e2bfa813ab73f7f95/187700/359422/subaccount',
+  'financia-tudo':   'https://financiatudo.com.br/produtos/chave/cadc009df0f513e09ac0d9ec33f3bd5f74b70fd3',
   'super-sim':       'https://apretailer.com.br/click/6a3f408e2bfa813b02188995/177702/359422/subaccount',
   'juros-baixos':    'https://apretailer.com.br/click/6a3f408e2bfa813b0819e8c6/179945/359422/subaccount',
   'finanzero':       'https://apretailer.com.br/click/6a3f408d2bfa813b0e7707a3/180635/359422/subaccount',
