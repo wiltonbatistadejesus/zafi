@@ -140,13 +140,13 @@ function HelpIconGraphic({ icon }: { icon: HelpIcon }) {
   return <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true"><rect {...common} x="5" y="3.5" width="14" height="17" rx="2" /><path {...common} d="M8 7.5h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01" /></svg>
 }
 
-function HelpItem({ icon, title, text }: { icon: HelpIcon; title: string; text: string }) {
+function HelpItem({ icon, title, text, href }: { icon: HelpIcon; title: string; text: string; href: string }) {
   return (
-    <div className="rounded-xl border border-zafi-border bg-white p-3">
+    <Link href={href} className="rounded-xl border border-zafi-border bg-white p-3 transition hover:border-blue-300 hover:shadow-sm">
       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-zafi-blue"><HelpIconGraphic icon={icon} /></span>
       <p className="mt-1 text-sm font-bold text-zafi-text">{title}</p>
       <p className="mt-0.5 text-xs leading-relaxed text-zafi-secondary">{text}</p>
-    </div>
+    </Link>
   )
 }
 
@@ -245,9 +245,9 @@ export default function Solutions({ name, debts, totalDebt, estimatedMonths, inc
       <section aria-labelledby="ajuda" className="mb-6">
         <h2 id="ajuda" className="mb-3 text-base font-extrabold text-zafi-text">Ainda precisa de ajuda?</h2>
         <div className="grid grid-cols-3 gap-2">
-          <HelpItem icon="blog" title="Blog" text="Explicações simples para decisões do dia a dia." />
-          <HelpItem icon="guide" title="Guias" text="Passo a passo para negociar sem se perder." />
-          <HelpItem icon="calculator" title="Calculadoras" text="Use sua simulação para comparar cenários." />
+          <HelpItem href="/guias" icon="blog" title="Blog" text="Explicações simples para decisões do dia a dia." />
+          <HelpItem href="/guias" icon="guide" title="Guias" text="Passo a passo para negociar sem se perder." />
+          <HelpItem href="/" icon="calculator" title="Calculadoras" text="Use sua simulação para comparar cenários." />
         </div>
       </section>
 

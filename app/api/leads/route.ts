@@ -10,7 +10,7 @@
 // -----------------------------------------------
 
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseClient } from '@/lib/supabase'
 
 // Shape of the request body
 interface LeadPayload {
@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Insert into Supabase
+    const supabase = getSupabaseClient()
     const { error } = await supabase.from('leads').insert([
       {
         name: body.name,
