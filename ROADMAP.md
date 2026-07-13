@@ -38,7 +38,7 @@ Status: concluída.
 
 ### Sprint 4 — PROJETO ORÁCULO
 
-Status: próxima sprint.
+Status: em andamento — Fase 1 implementada.
 
 Objetivo: criar a Base de Conhecimento Estruturada da Zafi, preparada para SEO e GEO, capaz de alimentar páginas, ferramentas e respostas consistentes para Google, Gemini, ChatGPT e demais mecanismos de IA.
 
@@ -62,6 +62,19 @@ Objetivo: criar a Base de Conhecimento Estruturada da Zafi, preparada para SEO e
 - Entidades relacionadas geram links internos automaticamente.
 - O sistema suporta novos conteúdos sem duplicar estrutura ou lógica.
 - Um conjunto inicial de conhecimento está publicado e validado em produção.
+
+#### Fase 1 — infraestrutura do conhecimento
+
+- Hub `/oraculo` e seis categorias permanentes.
+- Template reutilizável com resposta direta, fontes e data de revisão.
+- Dez páginas-modelo publicadas a partir de uma base central tipada.
+- Breadcrumbs visuais e `BreadcrumbList` estruturado.
+- `Article`, `FAQPage`, `WebPage`, Open Graph e JSON-LD.
+- Links internos automáticos e rotas incluídas no sitemap.
+
+#### Sprint 4.1 — Zafi AI Index
+
+Próxima etapa planejada: páginas estruturadas por banco, reunindo informações, FAQs, dados atualizados, ferramentas, glossário e fontes. A definição do modelo de entidades será feita antes da expansão editorial.
 
 ### Sprint 5 — IA personalizada
 
