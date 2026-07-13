@@ -1,6 +1,6 @@
 # Roadmap estratégico — Zafi
 
-Atualizado em 12 de julho de 2026.
+Atualizado em 13 de julho de 2026.
 
 ## Visão
 
@@ -38,7 +38,7 @@ Status: concluída.
 
 ### Sprint 4 — PROJETO ORÁCULO
 
-Status: em andamento — Fase 1 implementada.
+Status: Fase 1 concluída; arquitetura da Fase 4.1 concluída.
 
 Objetivo: criar a Base de Conhecimento Estruturada da Zafi, preparada para SEO e GEO, capaz de alimentar páginas, ferramentas e respostas consistentes para Google, Gemini, ChatGPT e demais mecanismos de IA.
 
@@ -72,9 +72,27 @@ Objetivo: criar a Base de Conhecimento Estruturada da Zafi, preparada para SEO e
 - `Article`, `FAQPage`, `WebPage`, Open Graph e JSON-LD.
 - Links internos automáticos e rotas incluídas no sitemap.
 
-#### Sprint 4.1 — Zafi AI Index
+#### Sprint 4.1 — Entity Database
 
-Próxima etapa planejada: páginas estruturadas por banco, reunindo informações, FAQs, dados atualizados, ferramentas, glossário e fontes. A definição do modelo de entidades será feita antes da expansão editorial.
+Status: arquitetura concluída; migração não aplicada em produção.
+
+- Knowledge Graph híbrido projetado sobre PostgreSQL.
+- Registro extensível de entidades e relacionamentos.
+- Afirmações atômicas com fontes, validade e confiança.
+- Especializações para instituições, produtos, conteúdo, perguntas, ferramentas e parceiros.
+- Histórico de versões e governança editorial.
+- Camada de páginas como projeção do grafo.
+- Schema privado, RLS e privilégios mínimos.
+- Contratos TypeScript para a futura camada de recuperação da IA.
+- Estratégia documentada para escala, SEO, GEO, JSON-LD e links internos.
+
+Próximo marco: aplicar e validar a migração em um ambiente de staging antes de conectar conteúdo ou páginas públicas.
+
+#### Zafi AI Index
+
+Status: planejado após a validação da Entity Database.
+
+Páginas estruturadas por banco reunirão informações, FAQs, dados atualizados, ferramentas, glossário e fontes. Serão projeções do Knowledge Graph, sem duplicar a base canônica.
 
 ### Sprint 5 — IA personalizada
 
