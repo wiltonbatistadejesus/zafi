@@ -30,7 +30,7 @@ export default function PrivacyPage() {
             Política de Privacidade
           </h1>
           <p className="text-zafi-secondary text-sm mb-8">
-            Última atualização: junho de 2025
+            Última atualização: julho de 2026
           </p>
 
           <Section title="1. Quem somos">
@@ -113,7 +113,10 @@ export default function PrivacyPage() {
 
           <Section title="9. Cookies">
             <p>
-              A Zafi usa apenas cookies essenciais de sessão. Não utilizamos cookies de rastreamento ou publicidade de terceiros.
+              A Zafi usa armazenamento local essencial para manter suas preferências. Com sua autorização, também utilizamos Google Analytics 4 e Microsoft Clarity para medir acessos, entender a navegação e melhorar a experiência.
+            </p>
+            <p>
+              As ferramentas de análise só são carregadas após sua escolha. Você pode recusar sem perder funcionalidades. A preferência fica salva no seu navegador e pode ser apagada ao limpar os dados do site.
             </p>
           </Section>
 

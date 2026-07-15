@@ -2,7 +2,10 @@
 // Root Layout — wraps every page in the app
 // -----------------------------------------------
 import type { Metadata } from 'next'
+import AnalyticsIntegrations from '@/components/AnalyticsIntegrations'
 import './globals.css'
+
+const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim()
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://meuzafi.com.br'),
@@ -11,6 +14,7 @@ export const metadata: Metadata = {
     'Organize suas dívidas, receba um diagnóstico financeiro e descubra o caminho mais inteligente para sair do endividamento. Grátis.',
   keywords: ['dívidas', 'renegociação', 'finanças pessoais', 'sair das dívidas', 'zafi'],
   alternates: { canonical: '/' },
+  verification: googleSiteVerification ? { google: googleSiteVerification } : undefined,
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
@@ -48,6 +52,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
+        <AnalyticsIntegrations />
       </body>
     </html>
   )
