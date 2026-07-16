@@ -104,12 +104,25 @@ Status: planejada.
 
 ### Sprint 6 — Analytics e otimização
 
-Status: planejada.
+Status: em andamento.
 
 - Funil completo e eventos de conversão.
 - Testes A/B.
 - Medição de confiança, abandono, cliques e receita.
 - Ciclo contínuo de melhoria.
+
+#### Sprint 6.1 — Zafi CEO Cockpit
+
+Status: primeira versão concluída.
+
+- Cockpit executivo responsivo em `/admin`.
+- Autenticação protegida no servidor e sessão segura por cookie HTTP-only.
+- North Star, aquisição, Google, conteúdo, funil, parceiros e receita.
+- Alertas operacionais, três ações prioritárias, roadmap e saúde da empresa.
+- Contrato de dados central preparado para GA4, Search Console e parceiros.
+- Placeholders explícitos, sem apresentar estimativas como dados reais.
+
+Próximo marco: Sprint 6.2 — substituir os adaptadores de placeholder por dados verificados das APIs e eventos do funil.
 
 ## Academia Zafi
 
