@@ -124,7 +124,7 @@ Status: primeira versão concluída.
 
 #### Sprint 6.2 — Telemetria da Zafi
 
-Status: implementada; validação operacional em produção em andamento.
+Status: concluída e validada em produção em 16/07/2026.
 
 - Banco da Zafi como fonte oficial e append-only dos eventos.
 - Eventos `page_view`, `analysis_started`, `analysis_completed`, `partner_clicked` e `affiliate_click`.
@@ -134,8 +134,16 @@ Status: implementada; validação operacional em produção em andamento.
 - Cockpit consulta dados reais e atualiza automaticamente a cada 10 segundos.
 - Página interna `/admin/telemetry` mostra persistência, GA4 e disponibilidade no Cockpit.
 - Conversões e receita continuam explicitamente não mensuradas até existir postback dos parceiros.
+- Rotas administrativas são excluídas das métricas de aquisição e conteúdo.
 
-Critério final pendente: executar e documentar o teste operacional completo em produção.
+Teste operacional concluído em produção:
+
+- 1 visitante e 1 sessão pública persistidos.
+- 1 análise iniciada e 1 análise concluída.
+- 2 eventos `partner_clicked` e 2 eventos `affiliate_click` do FinanciaTudo, preservando a auditoria append-only.
+- 7 eventos públicos confirmados no banco, no GA4 Realtime e na página de validação do Cockpit.
+- Redirecionamento afiliado medido em aproximadamente 3,1 segundos, sempre depois da persistência.
+- Atualização automática: até 3 segundos na página de validação e até 10 segundos no Cockpit Executivo.
 
 ## Academia Zafi
 

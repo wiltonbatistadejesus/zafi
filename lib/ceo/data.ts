@@ -92,15 +92,15 @@ export async function getCockpitData(): Promise<CockpitData> {
       { signal: (data.partner_clicked > 0 ? 'healthy' : 'attention') as Signal, title: 'Rota /go auditável', detail: `${number.format(data.partner_clicked)} clique(s) de parceiro persistidos hoje.` },
     ].slice(0, 4),
     actions: [
-      { priority: 'critical', title: 'Validar o fluxo operacional', reason: 'Confirma banco, GA4 e Cockpit na mesma sessão real.', owner: 'CEO + Engenharia' },
-      { priority: 'attention', title: 'Obter postback dos parceiros', reason: 'Permite medir conversões e receita sem estimativas.', owner: 'Growth' },
+      { priority: 'critical', title: 'Obter postback dos parceiros', reason: 'Permite medir conversões e receita sem estimativas.', owner: 'Growth' },
+      { priority: 'attention', title: 'Monitorar a telemetria por 7 dias', reason: 'Confirma estabilidade e forma um baseline confiável.', owner: 'CEO + Engenharia' },
       { priority: 'opportunity', title: 'Definir metas após o baseline', reason: 'Sete dias de dados reais permitirão metas responsáveis.', owner: 'Produto' },
     ],
     roadmap: {
-      current: 'Sprint 6.2 · Telemetria da Zafi',
+      current: 'Sprint 6.2 · Telemetria concluída',
       next: 'Sprint 6.3 · Conciliação de parceiros',
-      progress: 90,
-      milestone: 'Cadeia banco → GA4 → Cockpit em validação operacional',
+      progress: 100,
+      milestone: 'Cadeia banco → GA4 → Cockpit validada em produção',
     },
     health: [
       { label: 'SEO', signal: 'healthy', detail: 'Base indexável' },
