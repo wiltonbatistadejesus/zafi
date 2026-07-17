@@ -1,6 +1,6 @@
 import { Debt, DebtType } from './types'
 
-type PartnerId = 'acordo-certo' | 'super-sim' | 'financia-tudo' | 'juros-baixos' | 'finanzero'
+type PartnerId = 'acordo-certo' | 'super-sim' | 'financia-tudo' | 'juros-baixos' | 'finanzero' | 'bom-pra-credito'
 
 const HIGH_INTEREST: DebtType[] = ['cartao', 'rotativo', 'emprestimo', 'crediario']
 

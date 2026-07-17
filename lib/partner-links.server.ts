@@ -8,6 +8,7 @@ const AFFILIATE_LINKS: Partial<Record<PartnerId, string>> = {
   'financia-tudo': 'https://financiatudo.com.br/produtos/chave/cadc009df0f513e09ac0d9ec33f3bd5f74b70fd3',
   'juros-baixos': 'https://apretailer.com.br/click/6a3f408e2bfa813b0819e8c6/179945/359422/subaccount',
   finanzero: 'https://apretailer.com.br/click/6a3f408d2bfa813b0e7707a3/180635/359422/subaccount',
+  'bom-pra-credito': 'https://apretailer.com.br/click/6a3f408d2bfa813afc65b8b7/185636/359422/subaccount',
   'consiga-mais': 'https://apretailer.com.br/click/6a3f408d2bfa813ab73f7f94/184986/359422/subaccount',
 }
 
@@ -15,4 +16,3 @@ const AFFILIATE_LINKS: Partial<Record<PartnerId, string>> = {
 export function getAffiliateLink(id: PartnerId): string | undefined {
   return AFFILIATE_LINKS[id]
 }
-

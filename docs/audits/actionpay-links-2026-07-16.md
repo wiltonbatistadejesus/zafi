@@ -13,7 +13,7 @@ Escopo: cadastro, redirecionamento, persistência, envio GA4 e leitura pelo Cock
 | FinanciaTudo | Produtos FinanciaTudo — link direto | `/go/financia-tudo` / `financia-tudo` | `https://financiatudo.com.br/produtos/chave/cadc009df0f513e09ac0d9ec33f3bd5f74b70fd3` | Sim | Resultado da análise (`/`) | Pendente de confirmação | Sim; destino final idêntico ao link cadastrado | Supabase correto e isolado; envio GA4 HTTP 204; UI do GA4 pendente | Presente |
 | Juros Baixos | Juros Baixos — Empréstimo pessoal | `/go/juros-baixos` / `juros-baixos` | `https://apretailer.com.br/click/6a3f408e2bfa813b0819e8c6/179945/359422/subaccount` | Sim | Resultado da análise (`/`) | Pendente de confirmação | Sim; destino preservou `actionpay` e `aff_id=359422` | Supabase correto; envio GA4 HTTP 204; UI do GA4 pendente | Presente |
 | FinanZero | FinanZero — Empréstimos | `/go/finanzero` / `finanzero` | `https://apretailer.com.br/click/6a3f408d2bfa813b0e7707a3/180635/359422/subaccount` | Sim | Resultado da análise (`/`) | Pendente de confirmação | Sim; destino final `finanzero.com.br` com parâmetros de afiliado | Supabase correto; envio GA4 HTTP 204; UI do GA4 pendente | Presente |
-| Bom Pra Crédito | Não validada — usava indevidamente o link da FinanZero | `/go/bom-pra-credito` / `bom-pra-credito` | Nenhuma URL liberada após a auditoria | Não | Nenhuma | Pendente de confirmação | Não; vínculo duplicado removido e rota bloqueada com HTTP 410 | Sem clique indevido após a correção | Ausente, como esperado |
+| Bom Pra Crédito | Bom Pra Crédito — Actionpay ref. 185636 | `/go/bom-pra-credito` / `bom-pra-credito` | `https://apretailer.com.br/click/6a3f408d2bfa813afc65b8b7/185636/359422/subaccount` | Sim | Resultado da análise (`/`) | Pendente de confirmação | Link oficial informado em 17/07/2026; resolve para `afiliado.bompracredito.com.br` | A validar após publicação | A validar após publicação |
 | ConsigMais | ConsigMais — FGTS | `/go/consiga-mais` / `consiga-mais` | `https://apretailer.com.br/click/6a3f408d2bfa813ab73f7f94/184986/359422/subaccount` | Não | Nenhuma | Pendente de confirmação | Parcial; a Actionpay resolve para ConsigMais FGTS, mas o anunciante retornou `ERR_HTTP2_PROTOCOL_ERROR` | Clique de auditoria corretamente identificado; novos cliques bloqueados | Histórico de auditoria presente; rota agora inativa |
 
 ## Evidências técnicas
@@ -32,5 +32,5 @@ Escopo: cadastro, redirecionamento, persistência, envio GA4 e leitura pelo Cock
 - O modelo CPC, CPL, CPA, comissão e regras de conversão permanece sem configuração.
 - Nenhum postback definitivo foi criado.
 - O nome oficial da campanha Acordo Certo permanece pendente porque a vitrine pública mostra mais de uma campanha possível para o parceiro e a referência privada não permite correspondência segura.
-- Bom Pra Crédito depende do link oficial correto da Actionpay.
+- Bom Pra Crédito foi reativado com o link oficial da referência Actionpay 185636; meta e remuneração continuam pendentes.
 - ConsigMais depende da normalização da página do anunciante ou de um novo destino oficial.
