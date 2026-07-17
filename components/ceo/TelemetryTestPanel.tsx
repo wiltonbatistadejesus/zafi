@@ -27,7 +27,7 @@ export default function TelemetryTestPanel() {
     let active = true
     async function refresh() {
       try {
-        const response = await fetch('/api/admin/telemetry', { cache: 'no-store' })
+        const response = await fetch('/admin/api/telemetry', { cache: 'no-store' })
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
         const next = await response.json()
         if (active) { setData(next); setError('') }

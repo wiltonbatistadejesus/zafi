@@ -10,6 +10,7 @@ type Consent = 'granted' | 'denied' | null
 export default function AnalyticsIntegrations() {
   const [consent, setConsent] = useState<Consent>(null)
   const [ready, setReady] = useState(false)
+  const [isInternalPage, setIsInternalPage] = useState(false)
   const rawGaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() ?? ''
   const rawClarityId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID?.trim() ?? ''
   const gaId = /^G-[A-Z0-9]+$/.test(rawGaId) ? rawGaId : ''
@@ -17,6 +18,7 @@ export default function AnalyticsIntegrations() {
   const hasAnalytics = Boolean(gaId || clarityId)
 
   const trackPageViewOnce = useCallback(() => {
+    if (window.location.pathname.startsWith('/admin')) return
     const key = `zafi_page_view:${window.location.pathname}${window.location.search}`
     if (window.sessionStorage.getItem(key)) return
     window.sessionStorage.setItem(key, 'pending')
@@ -29,10 +31,12 @@ export default function AnalyticsIntegrations() {
   }, [])
 
   useEffect(() => {
+    const internalPage = window.location.pathname.startsWith('/admin')
+    setIsInternalPage(internalPage)
     const stored = window.localStorage.getItem(CONSENT_KEY)
     if (stored === 'granted' || stored === 'denied') {
       setConsent(stored)
-      trackPageViewOnce()
+      if (!internalPage) trackPageViewOnce()
     }
     setReady(true)
   }, [trackPageViewOnce])
@@ -43,7 +47,7 @@ export default function AnalyticsIntegrations() {
     window.setTimeout(trackPageViewOnce, 0)
   }
 
-  if (!hasAnalytics) return null
+  if (!hasAnalytics || isInternalPage) return null
 
   return (
     <>
