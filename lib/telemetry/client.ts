@@ -126,7 +126,7 @@ async function dispatchGa4(type: string, payload: Record<string, unknown>, event
     gaWindow.gtag?.('event', type, {
       ...flatPayload,
       event_id: eventId,
-      session_id: getTelemetryIdentity().sessionId,
+      zafi_session_id: getTelemetryIdentity().sessionId,
       event_callback: () => finish(true),
       event_timeout: 1500,
     })
