@@ -14,6 +14,7 @@
 import { useState } from 'react'
 import { Debt } from '@/lib/types'
 import { calcTotalDebt } from '@/lib/calculations'
+import { getAnalysisDurationSeconds, markAnalysisStarted, trackTelemetryEvent } from '@/lib/telemetry/client'
 
 import Hero from '@/components/steps/Hero'
 import DebtRegistration from '@/components/steps/DebtRegistration'
@@ -85,14 +86,36 @@ export default function Home() {
       console.error('Lead save failed:', err)
     }
 
+    try {
+      await trackTelemetryEvent('analysis_completed', {
+        duration_seconds: getAnalysisDurationSeconds(),
+        result: 'solutions_ready',
+        debt_count: debts.length,
+        total_debt: calcTotalDebt(debts),
+        estimated_months: lead.estimatedMonths,
+      })
+    } catch (err) {
+      console.error('Analysis completion telemetry failed:', err)
+    }
+
     setStep(5)
+  }
+
+  async function handleAnalysisStart() {
+    markAnalysisStarted()
+    try {
+      await trackTelemetryEvent('analysis_started', { entry_point: 'hero_primary_cta' })
+    } catch (err) {
+      console.error('Analysis start telemetry failed:', err)
+    }
+    setStep(1)
   }
 
   // ── Step renderer ─────────────────────────────────
   function renderStep() {
     switch (step) {
       case 0:
-        return <Hero onStart={() => setStep(1)} />
+        return <Hero onStart={handleAnalysisStart} />
 
       case 1:
         return (

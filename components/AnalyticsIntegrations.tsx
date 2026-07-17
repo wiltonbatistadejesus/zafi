@@ -1,7 +1,8 @@
 'use client'
 
 import Script from 'next/script'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { trackTelemetryEvent } from '@/lib/telemetry/client'
 
 const CONSENT_KEY = 'zafi_analytics_consent'
 type Consent = 'granted' | 'denied' | null
@@ -15,15 +16,31 @@ export default function AnalyticsIntegrations() {
   const clarityId = /^[a-z0-9]+$/i.test(rawClarityId) ? rawClarityId : ''
   const hasAnalytics = Boolean(gaId || clarityId)
 
+  const trackPageViewOnce = useCallback(() => {
+    const key = `zafi_page_view:${window.location.pathname}${window.location.search}`
+    if (window.sessionStorage.getItem(key)) return
+    window.sessionStorage.setItem(key, 'pending')
+    trackTelemetryEvent('page_view', { title: document.title })
+      .then(() => window.sessionStorage.setItem(key, 'persisted'))
+      .catch((error) => {
+        window.sessionStorage.removeItem(key)
+        console.error('Page view telemetry failed:', error)
+      })
+  }, [])
+
   useEffect(() => {
     const stored = window.localStorage.getItem(CONSENT_KEY)
-    if (stored === 'granted' || stored === 'denied') setConsent(stored)
+    if (stored === 'granted' || stored === 'denied') {
+      setConsent(stored)
+      trackPageViewOnce()
+    }
     setReady(true)
-  }, [])
+  }, [trackPageViewOnce])
 
   function chooseConsent(value: Exclude<Consent, null>) {
     window.localStorage.setItem(CONSENT_KEY, value)
     setConsent(value)
+    window.setTimeout(trackPageViewOnce, 0)
   }
 
   if (!hasAnalytics) return null

@@ -122,7 +122,20 @@ Status: primeira versão concluída.
 - Contrato de dados central preparado para GA4, Search Console e parceiros.
 - Placeholders explícitos, sem apresentar estimativas como dados reais.
 
-Próximo marco: Sprint 6.2 — substituir os adaptadores de placeholder por dados verificados das APIs e eventos do funil.
+#### Sprint 6.2 — Telemetria da Zafi
+
+Status: implementada; validação operacional em produção em andamento.
+
+- Banco da Zafi como fonte oficial e append-only dos eventos.
+- Eventos `page_view`, `analysis_started`, `analysis_completed`, `partner_clicked` e `affiliate_click`.
+- IDs anônimos de visitante e sessão, origem, dispositivo, consentimento e payload versionado.
+- Auditoria separada das entregas ao GA4, sem alterar o evento original.
+- Rota `/go` registra o clique antes de qualquer redirecionamento.
+- Cockpit consulta dados reais e atualiza automaticamente a cada 10 segundos.
+- Página interna `/admin/telemetry` mostra persistência, GA4 e disponibilidade no Cockpit.
+- Conversões e receita continuam explicitamente não mensuradas até existir postback dos parceiros.
+
+Critério final pendente: executar e documentar o teste operacional completo em produção.
 
 ## Academia Zafi
 

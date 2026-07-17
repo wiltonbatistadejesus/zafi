@@ -62,11 +62,12 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         <div className={styles.brand}><span>zafi</span><i>CEO</i></div>
         <div className={styles.topbarCenter}>
           <span className={styles.environment}><StatusDot signal="healthy" /> Produção</span>
-          <span className={styles.sprint}>Sprint 6.1</span>
+          <span className={styles.sprint}>Sprint 6.2</span>
           <span className={styles.system}>Sistema operacional</span>
         </div>
         <div className={styles.topbarRight}>
           <div><strong>{today}</strong><span>Atualizado {updated}</span></div>
+          <a className={styles.logout} href="/admin/telemetry">Validar dados</a>
           <form action={logout}><button className={styles.logout} type="submit" aria-label="Sair do Cockpit">Sair</button></form>
         </div>
       </header>
@@ -74,7 +75,7 @@ export default function Cockpit({ data }: { data: CockpitData }) {
       <div className={styles.commandStrip}>
         <span className={styles.livePulse}><i /> Visão executiva</span>
         <p>Como está a empresa agora?</p>
-        <span className={styles.dataMode}>{data.mode === 'live' ? 'Dados ao vivo' : 'Estrutura pronta · integrações em andamento'}</span>
+        <span className={styles.dataMode}>{data.mode === 'live' ? 'Banco Zafi · atualização a cada 10s' : 'Dados indisponíveis'}</span>
       </div>
 
       <div className={styles.dashboard}>
@@ -92,17 +93,17 @@ export default function Cockpit({ data }: { data: CockpitData }) {
             </div>
           </div>
           <div className={styles.progressTrack}><i style={{ width: `${data.northStar.progress}%` }} /></div>
-          <p className={styles.dataHonesty}>Sem números estimados. O Cockpit mostrará dados somente quando forem verificáveis.</p>
+          <p className={styles.dataHonesty}>Sem números estimados. Cada métrica de funil possui rastreabilidade até o evento de origem.</p>
         </Card>
 
         <Card className={styles.acquisition}>
-          <SectionHeading icon="users" eyebrow="Aquisição" title="Quem está chegando" aside={<span className={styles.integrationBadge}><StatusDot signal="healthy" /> GA4 ativo</span>} />
+          <SectionHeading icon="users" eyebrow="Aquisição" title="Quem está chegando" aside={<span className={styles.integrationBadge}><StatusDot signal="healthy" /> Banco Zafi ao vivo</span>} />
           <Metrics items={data.acquisition} />
           <div className={styles.sourceRow}>{data.trafficSources.map((source) => <div key={source.label}><span>{source.label}</span><strong>{source.value}</strong></div>)}</div>
         </Card>
 
         <Card className={styles.google}>
-          <SectionHeading icon="search" eyebrow="Google" title="Presença na busca" aside={<span className={styles.integrationBadge}><StatusDot signal="healthy" /> Conectado</span>} />
+          <SectionHeading icon="search" eyebrow="Google" title="Presença na busca" aside={<span className={styles.integrationBadge}><StatusDot signal="attention" /> Não integrado</span>} />
           <Metrics items={data.google} compact />
           <div className={styles.queryList}>{data.queries.map((query) => <div key={query.label}><span className={query.direction === 'up' ? styles.arrowUp : styles.arrowDown}>{query.direction === 'up' ? '↗' : '↘'}</span><div><strong>{query.label}</strong><small>{query.detail}</small></div></div>)}</div>
         </Card>
@@ -114,7 +115,7 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         </Card>
 
         <Card className={styles.funnel}>
-          <SectionHeading icon="funnel" eyebrow="Funil" title="Da atenção à receita" aside={<span className={styles.integrationBadge}><StatusDot signal="critical" /> Eventos pendentes</span>} />
+          <SectionHeading icon="funnel" eyebrow="Funil" title="Da atenção à receita" aside={<span className={styles.integrationBadge}><StatusDot signal="healthy" /> Eventos ao vivo</span>} />
           <div className={styles.funnelFlow}>{data.funnel.map((step, index) => <div className={styles.funnelStep} key={step.label}><div><span>{step.label}</span><strong>{step.value}</strong>{step.conversion && <small>{step.conversion}</small>}</div>{index < data.funnel.length - 1 && <b>→</b>}</div>)}</div>
         </Card>
 

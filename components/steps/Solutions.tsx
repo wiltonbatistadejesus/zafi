@@ -6,6 +6,7 @@ import Logo from '@/components/Logo'
 import { Debt, DEBT_TYPE_LABELS } from '@/lib/types'
 import { buildExitPlan, findMostDangerousDebt, formatBRL } from '@/lib/calculations'
 import { rankPartnerIds } from '@/lib/recommendations'
+import { buildPartnerTrackingUrl } from '@/lib/telemetry/client'
 
 interface SolutionsProps {
   name: string
@@ -114,6 +115,9 @@ function PartnerCard({ partner }: { partner: Partner }) {
           </div>
           <a
             href={partner.url}
+            onClick={(event) => {
+              event.currentTarget.href = buildPartnerTrackingUrl(partner.url)
+            }}
             target="_blank"
             rel="noopener noreferrer sponsored"
             className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-zafi-blue px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"

@@ -29,7 +29,7 @@ export type CompanyHealth = {
 
 export type CockpitData = {
   generatedAt: string
-  mode: 'placeholder' | 'live'
+  mode: 'live' | 'unavailable'
   northStar: {
     completed: string
     dayGoal: string
