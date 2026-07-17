@@ -84,16 +84,6 @@ const CREDITO: Partner[] = [
     icon: '≋',
     url: '/go/finanzero',
   },
-  {
-    id: 'bom-pra-credito',
-    name: 'Bom Pra Crédito',
-    description: 'Outra alternativa para buscar propostas adequadas ao seu perfil.',
-    reason: 'Ter uma opção adicional melhora sua comparação de prazo, parcelas e custo total.',
-    tag: 'Análise online',
-    tagClass: 'bg-emerald-100 text-emerald-800',
-    icon: '+',
-    url: '/go/bom-pra-credito',
-  },
 ]
 
 function PartnerCard({ partner }: { partner: Partner }) {
@@ -161,7 +151,7 @@ export default function Solutions({ name, debts, totalDebt, estimatedMonths, inc
   const firstPriority = plan[0]
   const financialSituation = debts.length === 1 ? 'Você registrou uma dívida.' : `Você registrou ${debts.length} dívidas.`
   const rankedAgreements = rankPartnerIds(ACORDOS.map((partner) => partner.id) as ('acordo-certo' | 'super-sim')[], debts, totalDebt, income)
-  const rankedCredit = rankPartnerIds(CREDITO.map((partner) => partner.id) as ('financia-tudo' | 'juros-baixos' | 'finanzero' | 'bom-pra-credito')[], debts, totalDebt, income)
+  const rankedCredit = rankPartnerIds(CREDITO.map((partner) => partner.id) as ('financia-tudo' | 'juros-baixos' | 'finanzero')[], debts, totalDebt, income)
   const agreements = rankedAgreements.map((id) => ACORDOS.find((partner) => partner.id === id)!).filter(Boolean)
   const credit = rankedCredit.map((id) => CREDITO.find((partner) => partner.id === id)!).filter(Boolean)
 
