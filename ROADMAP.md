@@ -145,6 +145,20 @@ Teste operacional concluído em produção:
 - Redirecionamento afiliado medido em aproximadamente 3,1 segundos, sempre depois da persistência.
 - Atualização automática: até 3 segundos na página de validação e até 10 segundos no Cockpit Executivo.
 
+#### OE-001.1 — Fechar o Ciclo Financeiro da Zafi
+
+Status: infraestrutura concluída; ativação final na Actionpay depende da confirmação das macros oficiais da campanha.
+
+- Endpoint autenticado `GET/POST /api/postbacks/actionpay`.
+- UUID próprio em cada clique Actionpay enviado pelo segmento `subaccount`.
+- Conciliação automática com parceiro, campanha, sessão, visitante e página de origem.
+- Conversão canônica por transação, histórico append-only e auditoria de aceitos, rejeitados e duplicados.
+- Idempotência transacional no banco: repetição não duplica conversão nem receita.
+- Comissão e moeda obrigatórias para qualquer conversão aprovada.
+- Receita, conversões, parceiros e histórico financeiro conectados ao CEO Cockpit, com atualização em até 10 segundos.
+- Segredo exclusivo configurado como variável sensível na Vercel para Production e Preview.
+- Contrato e procedimento de ativação documentados em `docs/actionpay-postback.md`.
+
 ## Academia Zafi
 
 Status: adiada para sprint futura.

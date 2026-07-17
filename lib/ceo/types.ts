@@ -48,6 +48,15 @@ export type CockpitData = {
   funnel: FunnelStep[]
   partners: Metric[]
   revenue: Metric[]
+  financeHistory: Array<{
+    id: string
+    transactionId: string
+    partner: string
+    campaignId: string
+    status: 'pending' | 'approved' | 'rejected' | 'cancelled'
+    amount: string
+    receivedAt: string
+  }>
   alerts: { signal: Signal; title: string; detail: string }[]
   actions: ExecutiveAction[]
   roadmap: {

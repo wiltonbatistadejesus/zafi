@@ -1,5 +1,7 @@
 import { getSupabaseClient } from '@/lib/supabase'
 import type { AnalyticsConsent, CockpitSnapshot, TelemetryEventType } from './types'
+import type { NormalizedActionpayPostback, FlatPostbackPayload } from '@/lib/actionpay/postback'
+import type { PartnerDefinition } from '@/lib/partners'
 
 type EventInput = {
   type: TelemetryEventType
@@ -60,6 +62,98 @@ export async function recordPartnerClick(input: Omit<EventInput, 'type'>) {
     affiliateEventId: data[0].affiliate_event_id as string,
     persistedAt: data[0].persisted_at as string,
   }
+}
+
+export async function recordAffiliateClick(input: {
+  clickId: string
+  telemetryEventId: string
+  partner: PartnerDefinition
+  sessionId: string
+  visitorId: string
+  sourcePage: string
+  occurredAt: string
+}) {
+  const { data, error } = await getSupabaseClient().rpc('affiliate_record_click', {
+    p_secret: secret(),
+    p_click_id: input.clickId,
+    p_telemetry_event_id: input.telemetryEventId,
+    p_partner_id: input.partner.id,
+    p_partner_name: input.partner.name,
+    p_campaign_id: input.partner.campaignId,
+    p_campaign_name: input.partner.campaignName,
+    p_network: input.partner.network,
+    p_session_id: input.sessionId,
+    p_visitor_id: input.visitorId,
+    p_source_page: input.sourcePage,
+    p_occurred_at: input.occurredAt,
+  })
+  if (error || !data) throw new Error(`Affiliate click persistence failed: ${error?.message ?? 'empty response'}`)
+  return data as string
+}
+
+export async function recordActionpayPostback(input: {
+  requestId: string
+  normalized: NormalizedActionpayPostback
+  payload: FlatPostbackPayload
+  rawPayloadHash: string
+}) {
+  const { normalized } = input
+  const { data, error } = await getSupabaseClient().rpc('affiliate_record_conversion', {
+    p_secret: secret(),
+    p_request_id: input.requestId,
+    p_network: 'actionpay',
+    p_idempotency_key: normalized.idempotencyKey,
+    p_transaction_id: normalized.transactionId,
+    p_original_click_id: normalized.originalClickId,
+    p_partner_id: normalized.partner?.id ?? null,
+    p_partner_name: normalized.partner?.name ?? null,
+    p_campaign_id: normalized.campaignId,
+    p_campaign_name: normalized.partner?.campaignName ?? null,
+    p_status: normalized.status,
+    p_commission: normalized.commission,
+    p_currency: normalized.currency,
+    p_event_at: normalized.eventAt,
+    p_converted_at: normalized.convertedAt,
+    p_raw_payload: input.payload,
+    p_raw_payload_hash: input.rawPayloadHash,
+    p_schema_version: 1,
+  })
+  if (error || !data?.[0]) throw new Error(`Actionpay conversion persistence failed: ${error?.message ?? 'empty response'}`)
+  return {
+    conversionId: data[0].conversion_id as string,
+    conversionEventId: data[0].conversion_event_id as string,
+    duplicate: Boolean(data[0].duplicate),
+    persistedAt: data[0].persisted_at as string,
+  }
+}
+
+export async function recordActionpayPostbackRejection(input: {
+  requestId: string
+  httpStatus: number
+  reason: string
+  payload: FlatPostbackPayload
+  rawPayloadHash: string
+  transactionId?: string | null
+  originalClickId?: string | null
+  partnerId?: string | null
+  campaignId?: string | null
+}) {
+  const { error } = await getSupabaseClient().rpc('affiliate_record_postback_audit', {
+    p_secret: secret(),
+    p_request_id: input.requestId,
+    p_network: 'actionpay',
+    p_outcome: 'rejected',
+    p_http_status: input.httpStatus,
+    p_reason: input.reason,
+    p_raw_payload: input.payload,
+    p_raw_payload_hash: input.rawPayloadHash,
+    p_idempotency_key: null,
+    p_transaction_id: input.transactionId ?? null,
+    p_original_click_id: input.originalClickId ?? null,
+    p_partner_id: input.partnerId ?? null,
+    p_campaign_id: input.campaignId ?? null,
+  })
+  if (error) throw new Error(`Actionpay rejection audit failed: ${error.message}`)
 }
 
 export async function recordGa4Delivery(eventId: string, result: Ga4Delivery) {

@@ -9,6 +9,13 @@ const signalLabels: Record<Signal, string> = {
   neutral: 'Aguardando',
 }
 
+const financeStatusLabels = {
+  pending: 'Em processamento',
+  approved: 'Aprovada',
+  rejected: 'Rejeitada',
+  cancelled: 'Cancelada',
+}
+
 function StatusDot({ signal = 'neutral' }: { signal?: Signal }) {
   return <span className={`${styles.statusDot} ${styles[signal]}`} aria-label={signalLabels[signal]} />
 }
@@ -62,7 +69,7 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         <div className={styles.brand}><span>zafi</span><i>CEO</i></div>
         <div className={styles.topbarCenter}>
           <span className={styles.environment}><StatusDot signal="healthy" /> Produção</span>
-          <span className={styles.sprint}>Sprint 6.2</span>
+          <span className={styles.sprint}>OE-001.1</span>
           <span className={styles.system}>Sistema operacional</span>
         </div>
         <div className={styles.topbarRight}>
@@ -125,8 +132,27 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         </Card>
 
         <Card className={styles.revenue}>
-          <SectionHeading icon="revenue" eyebrow="Receita" title="Pulso financeiro" aside={<span className={styles.integrationBadge}><StatusDot signal="attention" /> Conciliação pendente</span>} />
+          <SectionHeading icon="revenue" eyebrow="Receita" title="Pulso financeiro" aside={<span className={styles.integrationBadge}><StatusDot signal="healthy" /> Banco financeiro</span>} />
           <Metrics items={data.revenue} compact />
+        </Card>
+
+        <Card className={styles.ledger}>
+          <SectionHeading icon="revenue" eyebrow="Auditoria financeira" title="Histórico de conversões" aside={<span className={styles.integrationBadge}><StatusDot signal="healthy" /> Idempotente</span>} />
+          {data.financeHistory.length ? (
+            <div className={styles.ledgerTable}>
+              <div className={styles.ledgerHead}><span>Transação</span><span>Parceiro</span><span>Status</span><span>Comissão</span><span>Recebida</span></div>
+              {data.financeHistory.map((entry) => {
+                const received = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/Sao_Paulo' }).format(new Date(entry.receivedAt))
+                return <div className={styles.ledgerRow} key={entry.id}>
+                  <span><strong>{entry.transactionId}</strong><small>Campanha {entry.campaignId}</small></span>
+                  <span>{entry.partner}</span>
+                  <span><i className={styles[entry.status]} />{financeStatusLabels[entry.status]}</span>
+                  <span>{entry.amount}</span>
+                  <span>{received}</span>
+                </div>
+              })}
+            </div>
+          ) : <div className={styles.ledgerEmpty}><strong>Nenhum postback recebido</strong><span>A primeira conversão da Actionpay aparecerá aqui automaticamente, sem novo deploy.</span></div>}
         </Card>
 
         <Card className={styles.alerts}>

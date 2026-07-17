@@ -49,9 +49,25 @@ export type CockpitSnapshot = {
   month_analysis_completed: number
   ga4_accepted: number
   ga4_failed: number
+  conversions_today: number
+  conversions_week: number
+  conversions_month: number
+  conversions_total: number
   sources: { source: string; value: number }[]
   partners: { partner_id: string; partner_name: string; value: number }[]
   pages: { page: string; value: number }[]
+  conversion_partners: Array<{
+    partner_id: string
+    partner_name: string
+    conversions: number
+    revenue: number | string | null
+    currency: string | null
+  }>
+  revenue_today: RevenueAmount[]
+  revenue_week: RevenueAmount[]
+  revenue_month: RevenueAmount[]
+  revenue_total: RevenueAmount[]
+  recent_conversions: AffiliateConversion[]
   recent_events: Array<{
     id: string
     event_type: TelemetryEventType
@@ -68,4 +84,23 @@ export type CockpitSnapshot = {
     ga4_response_code: number | null
     ga4_attempted_at: string | null
   }>
+}
+
+export type RevenueAmount = { currency: string; value: number | string }
+
+export type AffiliateConversion = {
+  id: string
+  transaction_id: string
+  partner_id: string
+  partner_name: string
+  campaign_id: string
+  campaign_name: string
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled'
+  commission: number | string | null
+  currency: string | null
+  original_click_id: string | null
+  converted_at: string | null
+  first_received_at: string
+  last_received_at: string
+  updated_at: string
 }

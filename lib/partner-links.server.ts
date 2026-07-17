@@ -16,3 +16,13 @@ const AFFILIATE_LINKS: Partial<Record<PartnerId, string>> = {
 export function getAffiliateLink(id: PartnerId): string | undefined {
   return AFFILIATE_LINKS[id]
 }
+
+/**
+ * O último segmento dos links Actionpay fornecidos à Zafi é o subaccount.
+ * Ele recebe o UUID interno do clique para permitir a conciliação do postback.
+ */
+export function getTrackedAffiliateLink(id: PartnerId, clickId: string): string | undefined {
+  const destination = AFFILIATE_LINKS[id]
+  if (!destination || !destination.includes('apretailer.com.br/')) return destination
+  return destination.replace(/\/subaccount\/?$/, `/${encodeURIComponent(clickId)}`)
+}

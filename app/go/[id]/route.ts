@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAffiliateLink } from '@/lib/partner-links.server'
+import { getTrackedAffiliateLink } from '@/lib/partner-links.server'
 import { getPartner } from '@/lib/partners'
-import { recordPartnerClick } from '@/lib/telemetry/server'
+import { recordAffiliateClick, recordPartnerClick } from '@/lib/telemetry/server'
 import type { AnalyticsConsent } from '@/lib/telemetry/types'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
@@ -12,7 +12,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const partner = getPartner(params.id)
   if (!partner) return NextResponse.redirect(new URL('/', request.url))
 
-  const destination = getAffiliateLink(partner.id)
+  const affiliateClickId = crypto.randomUUID()
+  const destination = getTrackedAffiliateLink(partner.id, affiliateClickId)
   if (!partner.active || !destination) {
     return NextResponse.json({ error: 'Parceiro temporariamente indisponível.' }, { status: 410 })
   }
@@ -32,8 +33,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const payload = {
     partner_id: partner.id,
     partner_name: partner.name,
+    campaign_id: partner.campaignId,
     partner_campaign: partner.campaignName,
     affiliate_network: partner.network,
+    affiliate_click_id: affiliateClickId,
     destination_url: destination,
     traffic_campaign: (query.get('campaign') || '').slice(0, 200),
   }
@@ -54,9 +57,18 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
   try {
     const persisted = await recordPartnerClick(base)
+    await recordAffiliateClick({
+      clickId: affiliateClickId,
+      telemetryEventId: persisted.partnerEventId,
+      partner,
+      sessionId,
+      visitorId,
+      sourcePage,
+      occurredAt: base.occurredAt,
+    })
     console.log(JSON.stringify({
       level: 'info', message: 'partner_click_done', route: '/go/[id]', requestId,
-      partnerId: partner.id, eventId: persisted.partnerEventId, ms: Date.now() - startedAt,
+      partnerId: partner.id, affiliateClickId, eventId: persisted.partnerEventId, ms: Date.now() - startedAt,
     }))
 
     const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || ''

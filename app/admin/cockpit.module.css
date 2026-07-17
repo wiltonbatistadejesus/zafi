@@ -73,6 +73,7 @@
 .funnel { grid-column: span 7; }
 .partners { grid-column: span 5; }
 .revenue { grid-column: span 7; }
+.ledger { grid-column: span 12; }
 .alerts { grid-column: span 5; }
 .actions { grid-column: span 7; }
 .roadmap { grid-column: span 5; }
@@ -151,6 +152,24 @@
 .healthGrid strong { font-size: 9px; }
 .healthGrid small { margin-top: 4px; color: #677589; font-size: 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+.ledgerTable { overflow-x: auto; border: 1px solid var(--line); border-radius: 9px; }
+.ledgerHead, .ledgerRow { min-width: 820px; display: grid; grid-template-columns: 1.35fr 1.15fr .9fr .85fr .9fr; align-items: center; column-gap: 14px; }
+.ledgerHead { min-height: 38px; padding: 0 15px; color: #647185; background: rgba(255,255,255,.018); font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
+.ledgerRow { min-height: 58px; padding: 0 15px; border-top: 1px solid var(--line); color: #aab5c5; font-size: 9px; }
+.ledgerRow > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ledgerRow > span:first-child { display: grid; gap: 4px; }
+.ledgerRow strong { overflow: hidden; color: #edf2f8; font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; text-overflow: ellipsis; }
+.ledgerRow small { color: #566378; font: 7px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ledgerRow > span:nth-child(3) { display: flex; align-items: center; gap: 7px; }
+.ledgerRow i { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: #667085; }
+.ledgerRow i.approved { background: var(--green); box-shadow: 0 0 0 3px rgba(66,227,154,.08); }
+.ledgerRow i.pending { background: #f6bf52; }
+.ledgerRow i.rejected, .ledgerRow i.cancelled { background: #ff6274; }
+.ledgerRow > span:nth-child(4) { color: #e8edf5; font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
+.ledgerEmpty { min-height: 92px; display: grid; place-items: center; align-content: center; gap: 7px; border: 1px dashed rgba(142,158,181,.18); border-radius: 9px; text-align: center; }
+.ledgerEmpty strong { font-size: 10px; }
+.ledgerEmpty span { color: #69768a; font-size: 8px; }
+
 .footer { max-width: 1560px; margin: 0 auto; padding: 0 34px 28px; display: flex; justify-content: space-between; color: #455164; font-size: 8px; text-transform: uppercase; letter-spacing: .11em; }
 .footer p { margin: 0; color: #647185; }
 
@@ -173,7 +192,7 @@
 .loginSecurity { margin: 26px 0 0; color: #4f5d71; text-align: center; font-size: 8px; }
 
 @media (max-width: 1080px) {
-  .acquisition, .google, .content, .funnel, .partners, .revenue, .alerts, .actions, .roadmap, .health { grid-column: span 12; }
+  .acquisition, .google, .content, .funnel, .partners, .revenue, .ledger, .alerts, .actions, .roadmap, .health { grid-column: span 12; }
   .topbarCenter .system { display: none; }
 }
 

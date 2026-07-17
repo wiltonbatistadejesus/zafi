@@ -10,6 +10,7 @@ export type PartnerId =
 export type PartnerDefinition = {
   id: PartnerId
   name: string
+  campaignId: string
   campaignName: string
   network: 'actionpay' | 'direct'
   active: boolean
@@ -19,15 +20,19 @@ export type PartnerDefinition = {
 }
 
 export const PARTNERS: Record<PartnerId, PartnerDefinition> = {
-  'acordo-certo': { id: 'acordo-certo', name: 'Acordo Certo', campaignName: 'Actionpay ref. 187558 — nome oficial pendente', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation', note: 'A vitrine pública possui mais de uma campanha Acordo Certo.' },
-  'super-sim': { id: 'super-sim', name: 'SuperSim', campaignName: 'SuperSim — Empréstimo Pessoal', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation' },
-  'financia-tudo': { id: 'financia-tudo', name: 'FinanciaTudo', campaignName: 'Produtos FinanciaTudo — link direto', network: 'direct', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation' },
-  'juros-baixos': { id: 'juros-baixos', name: 'Juros Baixos', campaignName: 'Juros Baixos — Empréstimo pessoal', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation', note: 'Destino validado; meta e remuneração ainda dependem da tela oficial da campanha.' },
-  finanzero: { id: 'finanzero', name: 'FinanZero', campaignName: 'FinanZero — Empréstimos', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation' },
-  'bom-pra-credito': { id: 'bom-pra-credito', name: 'Bom Pra Crédito', campaignName: 'Bom Pra Crédito — Actionpay ref. 185636', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation', note: 'Link oficial informado pelo afiliado em 17/07/2026; remuneração e meta seguem pendentes de confirmação.' },
-  'consiga-mais': { id: 'consiga-mais', name: 'ConsigMais', campaignName: 'ConsigMais — FGTS', network: 'actionpay', active: false, pages: [], remunerationModel: 'pending_confirmation', note: 'Desativado: a campanha resolve para o anunciante correto, mas o destino retornou ERR_HTTP2_PROTOCOL_ERROR no teste controlado.' },
+  'acordo-certo': { id: 'acordo-certo', name: 'Acordo Certo', campaignId: '187558', campaignName: 'Actionpay ref. 187558 — nome oficial pendente', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation', note: 'A vitrine pública possui mais de uma campanha Acordo Certo.' },
+  'super-sim': { id: 'super-sim', name: 'SuperSim', campaignId: '177702', campaignName: 'SuperSim — Empréstimo Pessoal', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation' },
+  'financia-tudo': { id: 'financia-tudo', name: 'FinanciaTudo', campaignId: 'financia-tudo-direct', campaignName: 'Produtos FinanciaTudo — link direto', network: 'direct', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation' },
+  'juros-baixos': { id: 'juros-baixos', name: 'Juros Baixos', campaignId: '179945', campaignName: 'Juros Baixos — Empréstimo pessoal', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation', note: 'Destino validado; meta e remuneração ainda dependem da tela oficial da campanha.' },
+  finanzero: { id: 'finanzero', name: 'FinanZero', campaignId: '180635', campaignName: 'FinanZero — Empréstimos', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation' },
+  'bom-pra-credito': { id: 'bom-pra-credito', name: 'Bom Pra Crédito', campaignId: '185636', campaignName: 'Bom Pra Crédito — Actionpay ref. 185636', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation', note: 'Link oficial informado pelo afiliado em 17/07/2026; remuneração e meta seguem pendentes de confirmação.' },
+  'consiga-mais': { id: 'consiga-mais', name: 'ConsigMais', campaignId: '184986', campaignName: 'ConsigMais — FGTS', network: 'actionpay', active: false, pages: [], remunerationModel: 'pending_confirmation', note: 'Desativado: a campanha resolve para o anunciante correto, mas o destino retornou ERR_HTTP2_PROTOCOL_ERROR no teste controlado.' },
 }
 
 export function getPartner(id: string): PartnerDefinition | undefined {
   return PARTNERS[id as PartnerId]
+}
+
+export function getPartnerByCampaignId(campaignId: string): PartnerDefinition | undefined {
+  return Object.values(PARTNERS).find((partner) => partner.campaignId === campaignId)
 }
