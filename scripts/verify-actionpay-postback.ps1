@@ -9,7 +9,7 @@ if ([string]::IsNullOrWhiteSpace($secret) -and -not [string]::IsNullOrWhiteSpace
   $encrypted = Get-Content -LiteralPath $EncryptedSecretPath -Raw
   $credential = New-Object System.Management.Automation.PSCredential(
     'actionpay',
-    (ConvertTo-SecureString $encrypted)
+    (ConvertTo-SecureString $encrypted.Trim())
   )
   $secret = $credential.GetNetworkCredential().Password
 }
