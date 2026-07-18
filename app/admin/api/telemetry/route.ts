@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { CEO_COOKIE, verifyCeoSession } from '@/lib/ceo/auth'
-import { getCockpitSnapshot } from '@/lib/telemetry/server'
+import { getCockpitSnapshot, getGa4IntegrationStatus } from '@/lib/telemetry/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,8 +11,11 @@ export async function GET() {
   }
 
   try {
-    const snapshot = await getCockpitSnapshot(50)
-    return NextResponse.json(snapshot, {
+    const [snapshot, ga4Integration] = await Promise.all([
+      getCockpitSnapshot(50),
+      getGa4IntegrationStatus(),
+    ])
+    return NextResponse.json({ ...snapshot, ga4_integration: ga4Integration }, {
       headers: { 'Cache-Control': 'no-store, max-age=0' },
     })
   } catch (error) {

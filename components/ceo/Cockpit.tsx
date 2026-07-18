@@ -116,7 +116,7 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         </Card>
 
         <Card className={styles.google}>
-          <SectionHeading icon="search" eyebrow="Google" title="Presença na busca" aside={<span className={styles.integrationBadge}><StatusDot signal="attention" /> Não integrado</span>} />
+          <SectionHeading icon="search" eyebrow="Google" title="Presença e mensuração" aside={<span className={styles.integrationBadge} title={data.googleIntegration.detail}><StatusDot signal={data.googleIntegration.signal} /> GA4 {data.googleIntegration.label}</span>} />
           <Metrics items={data.google} compact />
           <div className={styles.queryList}>{data.queries.map((query) => <div key={query.label}><span className={query.direction === 'up' ? styles.arrowUp : styles.arrowDown}>{query.direction === 'up' ? '↗' : '↘'}</span><div><strong>{query.label}</strong><small>{query.detail}</small></div></div>)}</div>
         </Card>
@@ -145,7 +145,7 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         <Card className={styles.operations}>
           <SectionHeading icon="pulse" eyebrow="OE-005 · Integridade operacional" title="Saúde da cadeia" aside={<span className={styles.integrationBadge}><StatusDot signal={data.operations.status} /> {data.operations.statusLabel}</span>} />
           <div className={styles.operationsHero}>
-            <div><span>Índice de saúde</span><strong>{data.operations.score}</strong><small>{data.operations.window}</small></div>
+            <div><span>Índice de saúde</span><strong>{data.operations.score}</strong><small>{data.operations.window}</small><small><StatusDot signal={data.operations.schedulerSignal} /> {data.operations.schedulerLabel}</small></div>
             <p>O monitor aponta onde a operação perdeu continuidade e mantém a evidência financeira separada da decisão do motor.</p>
           </div>
           <div className={styles.chainRail}>

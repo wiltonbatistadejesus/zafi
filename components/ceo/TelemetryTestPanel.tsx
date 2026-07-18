@@ -12,7 +12,8 @@ const labels: Record<string, string> = {
 }
 
 function statusLabel(status: string | null) {
-  if (status === 'accepted') return 'GA4 aceitou'
+  if (status === 'accepted' || status === 'sent') return 'Tag GA4 acionada; processamento pendente'
+  if (status === 'confirmed') return 'Confirmado na interface do GA4'
   if (status === 'skipped_no_consent') return 'GA4 não enviado: sem consentimento'
   if (status === 'not_configured') return 'GA4 não configurado'
   if (status === 'failed') return 'Falha no GA4'
@@ -55,7 +56,7 @@ export default function TelemetryTestPanel() {
           <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {[
               ['Visitantes', data.visitors], ['Iniciadas', data.analysis_started], ['Concluídas', data.analysis_completed],
-              ['Cliques', data.partner_clicked], ['GA4 aceitos', data.ga4_accepted],
+              ['Cliques', data.partner_clicked], ['GA4 enviados', data.ga4_integration?.technical_sent ?? data.ga4_accepted],
             ].map(([label, value]) => <div key={String(label)} className="rounded-2xl border border-slate-800 bg-slate-900 p-4"><span className="text-xs text-slate-400">{label}</span><strong className="mt-2 block text-3xl">{value}</strong></div>)}
           </section>
 
@@ -69,7 +70,7 @@ export default function TelemetryTestPanel() {
                     <td className="px-5 py-4"><strong>{labels[event.event_type] || event.event_type}</strong><small className="mt-1 block font-mono text-[10px] text-slate-500">{event.id}</small></td>
                     <td className="px-5 py-4 text-emerald-400">✓ {new Date(event.occurred_at).toLocaleTimeString('pt-BR')}</td>
                     <td className="px-5 py-4 text-emerald-400">✓ {new Date(event.created_at).toLocaleTimeString('pt-BR')}</td>
-                    <td className={`px-5 py-4 ${event.ga4_status === 'accepted' ? 'text-emerald-400' : 'text-amber-400'}`}>{event.ga4_status === 'accepted' ? '✓ ' : '• '}{statusLabel(event.ga4_status)}</td>
+                    <td className={`px-5 py-4 ${event.ga4_status === 'confirmed' ? 'text-emerald-400' : 'text-amber-400'}`}>{event.ga4_status === 'confirmed' ? '✓ ' : '• '}{statusLabel(event.ga4_status)}</td>
                     <td className="px-5 py-4 text-emerald-400">✓ Disponível</td>
                     <td className="max-w-[220px] truncate px-5 py-4 text-slate-400">{event.source_page}</td>
                   </tr>)}

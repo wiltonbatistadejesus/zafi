@@ -31,7 +31,7 @@ export type TelemetryReceipt = {
   eventId: string
   persistedAt: string
   ga4: {
-    status: 'accepted' | 'skipped_no_consent' | 'not_configured' | 'failed'
+    status: 'accepted' | 'sent' | 'confirmed' | 'skipped_no_consent' | 'not_configured' | 'failed'
     responseCode: number | null
   }
 }
@@ -49,6 +49,7 @@ export type CockpitSnapshot = {
   month_analysis_completed: number
   ga4_accepted: number
   ga4_failed: number
+  ga4_integration?: Ga4IntegrationStatus
   conversions_today: number
   conversions_week: number
   conversions_month: number
@@ -199,6 +200,28 @@ export type OperationalMonitorSnapshot = {
       last_received_at: string
     }>
   }
+  scheduler: {
+    status: 'healthy' | 'failed' | 'stale' | 'not_started'
+    frequency: 'every_5_minutes'
+    last_run_at: string | null
+    last_success_at: string | null
+    last_failure_at: string | null
+    last_error_code: string | null
+    last_detail: string | null
+  }
+}
+
+export type Ga4IntegrationStatus = {
+  status: 'integrated' | 'attention' | 'not_integrated'
+  official_measurement_id: string
+  configured_measurement_id_matches: boolean
+  window_hours: number
+  technical_sent: number
+  failed: number
+  realtime_confirmed: number
+  debugview_confirmed: number
+  last_attempt_at: string | null
+  last_confirmation_at: string | null
 }
 
 export type AffiliateConversion = {

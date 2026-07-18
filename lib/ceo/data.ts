@@ -1,4 +1,4 @@
-import { getAttributionCockpitSnapshot, getCockpitSnapshot, getOperationalMonitorSnapshot } from '@/lib/telemetry/server'
+import { getAttributionCockpitSnapshot, getCockpitSnapshot, getGa4IntegrationStatus, getOperationalMonitorSnapshot } from '@/lib/telemetry/server'
 import type { CockpitSnapshot, RevenueAmount } from '@/lib/telemetry/types'
 import type { CockpitData, Metric, Signal } from './types'
 
@@ -53,14 +53,23 @@ function contentMetrics(snapshot: CockpitSnapshot): Metric[] {
 }
 
 export async function getCockpitData(): Promise<CockpitData> {
-  const [data, attribution, operational] = await Promise.all([
+  const [data, attribution, operational, ga4Integration] = await Promise.all([
     getCockpitSnapshot(),
     getAttributionCockpitSnapshot(),
     getOperationalMonitorSnapshot(),
+    getGa4IntegrationStatus(),
   ])
   const topPartner = data.partners[0]
   const topConversionPartner = data.conversion_partners[0]
-  const ga4Healthy = data.ga4_failed === 0
+  const ga4Signal: Signal = ga4Integration.status === 'integrated' ? 'healthy'
+    : ga4Integration.status === 'attention' ? 'attention' : 'critical'
+  const ga4Label = ga4Integration.status === 'integrated' ? 'Integrado'
+    : ga4Integration.status === 'attention' ? 'Atenção' : 'Não integrado'
+  const ga4Detail = ga4Integration.status === 'integrated'
+    ? `Realtime e DebugView confirmados nas últimas ${ga4Integration.window_hours}h.`
+    : ga4Integration.status === 'attention'
+      ? `${number.format(ga4Integration.technical_sent)} envio(s) técnico(s); confirmação visual recente incompleta.`
+      : 'ID oficial ausente ou divergente no ambiente de produção.'
   const todayRevenue = singleRevenueValue(data.revenue_today)
   const revenuePerVisitor = todayRevenue && data.visitors ? currency(todayRevenue.value / data.visitors, todayRevenue.currency) : currency(0, 'BRL')
   const revenuePerAnalysis = todayRevenue && data.analysis_completed ? currency(todayRevenue.value / data.analysis_completed, todayRevenue.currency) : currency(0, 'BRL')
@@ -94,6 +103,7 @@ export async function getCockpitData(): Promise<CockpitData> {
       { label: 'Social', value: number.format(sourceValue(data, 'social')) },
       { label: 'Referral', value: number.format(sourceValue(data, 'referral')) },
     ],
+    googleIntegration: { signal: ga4Signal, label: ga4Label, detail: ga4Detail },
     google: [
       { label: 'Impressões', value: 'Não integrado', detail: 'Search Console não faz parte da telemetria desta sprint' },
       { label: 'Cliques de busca', value: 'Não integrado', detail: 'Sem fonte oficial conectada' },
@@ -136,7 +146,11 @@ export async function getCockpitData(): Promise<CockpitData> {
       hasActivity: operational.has_activity,
       statusLabel: operationalStatusLabel,
       score: operational.health_score === null ? 'Sem base' : `${Math.round(Number(operational.health_score))} / 100`,
-      window: `Últimas ${operational.window_hours}h · snapshots a cada 5 min`,
+      window: `Últimas ${operational.window_hours}h · snapshot automático a cada 5 min`,
+      schedulerSignal: operational.scheduler.status === 'healthy' ? 'healthy' : operational.scheduler.status === 'not_started' ? 'neutral' : 'critical',
+      schedulerLabel: operational.scheduler.status === 'healthy' ? 'Agendamento ativo'
+        : operational.scheduler.status === 'not_started' ? 'Agendamento aguardando primeira execução'
+          : operational.scheduler.status === 'stale' ? 'Agendamento atrasado' : 'Falha no agendamento',
       chain: operational.chain.map((stage) => ({
         key: stage.key,
         label: stage.label,
@@ -205,8 +219,11 @@ export async function getCockpitData(): Promise<CockpitData> {
     })),
     alerts: [
       ...operational.diagnostics.slice(0, 2).map((diagnostic) => ({ signal: diagnostic.severity as Signal, title: diagnostic.title, detail: `${number.format(diagnostic.count)} ocorrência(s). ${diagnostic.detail}` })),
-      ...(data.ga4_failed > 0 ? [{ signal: 'critical' as const, title: 'Falha de entrega ao GA4', detail: `${number.format(data.ga4_failed)} entrega(s) falharam hoje.` }] : []),
-      { signal: (ga4Healthy ? 'healthy' : 'attention') as Signal, title: 'Telemetria persistente ativa', detail: `${number.format(data.ga4_accepted)} evento(s) aceitos pelo GA4 hoje.` },
+      ...(operational.scheduler.status === 'failed' || operational.scheduler.status === 'stale'
+        ? [{ signal: 'critical' as const, title: 'Snapshot automático interrompido', detail: operational.scheduler.last_detail || 'O agendamento operacional precisa de investigação.' }]
+        : []),
+      ...(ga4Integration.failed > 0 ? [{ signal: 'critical' as const, title: 'Falha de envio ao GA4', detail: `${number.format(ga4Integration.failed)} entrega(s) falharam na janela.` }] : []),
+      { signal: ga4Signal, title: `Google Analytics: ${ga4Label}`, detail: ga4Detail },
       { signal: (attribution.unattributed_conversions_total === 0 ? 'healthy' : 'attention') as Signal, title: 'Cobertura de atribuição', detail: `${conversionCoverage} das conversões conectadas ao Recommendation Engine.` },
     ].slice(0, 4),
     actions: [
@@ -225,7 +242,7 @@ export async function getCockpitData(): Promise<CockpitData> {
     health: [
       { label: 'SEO', signal: 'healthy', detail: 'Base indexável' },
       { label: 'GEO', signal: 'healthy', detail: 'ORÁCULO estruturado' },
-      { label: 'Analytics', signal: !ga4Healthy ? 'critical' : operationalHealthSignal, detail: operationalStatusLabel },
+      { label: 'Analytics', signal: ga4Signal, detail: ga4Detail },
       { label: 'Monetização', signal: operational.reconciliation.unreconciled > 0 ? 'critical' : operational.reconciliation.total > 0 ? 'healthy' : 'attention', detail: operational.reconciliation.total > 0 ? 'Conciliação monitorada' : 'Aguardando conversão' },
       { label: 'Infraestrutura', signal: operationalHealthSignal, detail: `Saúde ${operational.health_score === null ? 'sem base' : `${Math.round(Number(operational.health_score))}/100`}` },
       { label: 'Conteúdo', signal: 'attention', detail: 'Conversão agora rastreável' },

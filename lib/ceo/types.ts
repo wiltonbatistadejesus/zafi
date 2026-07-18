@@ -23,7 +23,7 @@ export type ExecutiveAction = {
 
 export type CompanyHealth = {
   label: string
-  signal: Exclude<Signal, 'neutral'>
+  signal: Signal
   detail: string
 }
 
@@ -39,6 +39,11 @@ export type CockpitData = {
   }
   acquisition: Metric[]
   trafficSources: Metric[]
+  googleIntegration: {
+    signal: Signal
+    label: string
+    detail: string
+  }
   google: Metric[]
   queries: { label: string; direction: 'up' | 'down'; detail: string }[]
   content: {
@@ -54,6 +59,8 @@ export type CockpitData = {
     statusLabel: string
     score: string
     window: string
+    schedulerSignal: Signal
+    schedulerLabel: string
     chain: Array<{
       key: string
       label: string

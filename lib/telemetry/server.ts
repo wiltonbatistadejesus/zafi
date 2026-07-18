@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase'
-import type { AnalyticsConsent, AttributionCockpitSnapshot, CockpitSnapshot, OperationalMonitorSnapshot, TelemetryEventType } from './types'
+import type { AnalyticsConsent, AttributionCockpitSnapshot, CockpitSnapshot, Ga4IntegrationStatus, OperationalMonitorSnapshot, TelemetryEventType } from './types'
 import type { NormalizedActionpayPostback, FlatPostbackPayload } from '@/lib/actionpay/postback'
 import type { PartnerDefinition } from '@/lib/partners'
 
@@ -173,7 +173,7 @@ export async function recordGa4Delivery(eventId: string, result: Ga4Delivery) {
 }
 
 export type Ga4Delivery = {
-  status: 'accepted' | 'skipped_no_consent' | 'not_configured' | 'failed'
+  status: 'accepted' | 'sent' | 'confirmed' | 'skipped_no_consent' | 'not_configured' | 'failed'
   responseCode: number | null
   detail: string
 }
@@ -197,11 +197,40 @@ export async function getAttributionCockpitSnapshot(recentLimit = 20): Promise<A
 }
 
 export async function getOperationalMonitorSnapshot(windowHours = 24): Promise<OperationalMonitorSnapshot> {
-  const { data, error } = await getSupabaseClient().rpc('operational_monitor_snapshot', {
+  const { data, error } = await getSupabaseClient().rpc('operational_monitor_latest', {
     p_secret: secret(),
     p_window_hours: windowHours,
-    p_persist: true,
   })
   if (error || !data) throw new Error(`Operational monitor snapshot failed: ${error?.message ?? 'empty response'}`)
   return data as OperationalMonitorSnapshot
+}
+
+export async function getGa4IntegrationStatus(windowHours = 24): Promise<Ga4IntegrationStatus> {
+  const { data, error } = await getSupabaseClient().rpc('telemetry_ga4_integration_status', {
+    p_secret: secret(),
+    p_measurement_id: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() ?? '',
+    p_confirmation_window_hours: windowHours,
+  })
+  if (error || !data) throw new Error(`GA4 integration status failed: ${error?.message ?? 'empty response'}`)
+  return data as Ga4IntegrationStatus
+}
+
+export async function recordGa4Confirmation(input: {
+  eventId: string
+  evidenceSource: 'realtime' | 'debugview'
+  eventName: TelemetryEventType
+  evidenceAt: string
+  details?: Record<string, unknown>
+}) {
+  const { data, error } = await getSupabaseClient().rpc('telemetry_record_ga4_confirmation', {
+    p_secret: secret(),
+    p_event_id: input.eventId,
+    p_evidence_source: input.evidenceSource,
+    p_measurement_id: 'G-ZY4276HJZT',
+    p_event_name: input.eventName,
+    p_evidence_at: input.evidenceAt,
+    p_details: input.details ?? {},
+  })
+  if (error || !data) throw new Error(`GA4 confirmation persistence failed: ${error?.message ?? 'empty response'}`)
+  return data as string
 }

@@ -114,6 +114,27 @@ async function dispatchGa4(type: string, payload: Record<string, unknown>, event
     return { status: 'not_configured', responseCode: null }
   }
 
+  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() ?? ''
+  if (!/^G-[A-Z0-9]+$/.test(measurementId)) {
+    await auditGa4(eventId, 'not_configured', null, 'Measurement ID ausente ou inválido no bundle de produção.')
+    return { status: 'not_configured', responseCode: null }
+  }
+
+  async function readGaField(field: 'client_id' | 'session_id') {
+    return new Promise<string | null>((resolve) => {
+      let settled = false
+      const finish = (value: string | null) => { if (!settled) { settled = true; resolve(value) } }
+      gaWindow.gtag?.('get', measurementId, field, (value: unknown) => finish(
+        typeof value === 'string' || typeof value === 'number' ? String(value) : null
+      ))
+      window.setTimeout(() => finish(null), 800)
+    })
+  }
+
+  const [clientId, gaSessionId] = await Promise.all([readGaField('client_id'), readGaField('session_id')])
+  const clientIdValid = Boolean(clientId && /^\d+\.\d+$/.test(clientId))
+  const gaSessionIdValid = Boolean(gaSessionId && /^\d+$/.test(gaSessionId))
+
   const flatPayload = Object.fromEntries(
     Object.entries(payload)
       .filter(([, value]) => ['string', 'number', 'boolean'].includes(typeof value))
@@ -125,17 +146,22 @@ async function dispatchGa4(type: string, payload: Record<string, unknown>, event
     const finish = (value: boolean) => { if (!settled) { settled = true; resolve(value) } }
     gaWindow.gtag?.('event', type, {
       ...flatPayload,
+      send_to: measurementId,
       event_id: eventId,
       zafi_session_id: getTelemetryIdentity().sessionId,
+      debug_mode: new URLSearchParams(window.location.search).get('zafi_ga_debug') === '1',
       event_callback: () => finish(true),
       event_timeout: 1500,
     })
     window.setTimeout(() => finish(false), 1800)
   })
 
-  const status = accepted ? 'accepted' : 'failed'
-  await auditGa4(eventId, status, accepted ? 204 : null, accepted ? 'Callback de envio da tag GA4 executado.' : 'Timeout aguardando callback da tag GA4.')
-  return { status, responseCode: accepted ? 204 : null }
+  const status = accepted ? 'sent' : 'failed'
+  const identityDetail = `client_id ${clientIdValid ? 'válido' : 'não confirmado'}; session_id GA4 ${gaSessionIdValid ? 'válida' : 'não confirmada'}.`
+  await auditGa4(eventId, status, null, accepted
+    ? `Tag GA4 acionada; resposta HTTP não é observável pelo callback. ${identityDetail}`
+    : `Timeout aguardando callback da tag GA4. ${identityDetail}`)
+  return { status, responseCode: null }
 }
 
 async function auditGa4(eventId: string, status: TelemetryReceipt['ga4']['status'], responseCode: number | null, detail: string) {
@@ -158,5 +184,6 @@ export function buildPartnerTrackingUrl(path: string) {
   url.searchParams.set('source', traffic.source)
   const campaign = traffic.campaign.utm_campaign
   if (campaign) url.searchParams.set('campaign', campaign)
+  if (new URLSearchParams(window.location.search).get('zafi_ga_debug') === '1') url.searchParams.set('debug', '1')
   return `${url.pathname}${url.search}`
 }
