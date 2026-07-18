@@ -45,7 +45,6 @@ export default function Home() {
   const [debts, setDebts] = useState<Debt[]>([])
   const [leadName, setLeadName] = useState('')
   const [leadEstMonths, setLeadEstMonths] = useState<number | null>(null)
-  const [leadIncome, setLeadIncome] = useState(0)
 
   // ── Debt helpers ──────────────────────────────────
   function addDebt(debt: Debt) {
@@ -81,7 +80,6 @@ export default function Home() {
   }) {
     setLeadName(lead.name)
     setLeadEstMonths(lead.estimatedMonths)
-    setLeadIncome(lead.income)
 
     // Save lead to Supabase via API route
     try {
@@ -173,7 +171,6 @@ export default function Home() {
             debts={debts}
             totalDebt={calcTotalDebt(debts)}
             estimatedMonths={leadEstMonths}
-            income={leadIncome}
           />
         )
 

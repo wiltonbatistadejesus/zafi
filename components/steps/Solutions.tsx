@@ -6,19 +6,18 @@ import Card from '@/components/Card'
 import Logo from '@/components/Logo'
 import { Debt, DEBT_TYPE_LABELS } from '@/lib/types'
 import { buildExitPlan, findMostDangerousDebt, formatBRL } from '@/lib/calculations'
-import { buildAtlasContext, rankAtlasProducts } from '@/lib/recommendations'
+import { requestRecommendations } from '@/lib/recommendation/client'
 import { buildPartnerTrackingUrl } from '@/lib/telemetry/client'
-import type { AtlasCatalog, RankedAtlasProduct } from '@/lib/atlas/types'
+import type { RecommendationDecision, RecommendationResult } from '@/lib/recommendation/types'
 
 interface SolutionsProps {
   name: string
   debts: Debt[]
   totalDebt: number
   estimatedMonths: number | null
-  income: number
 }
 
-const TAG_CLASSES: Record<RankedAtlasProduct['tagTone'], string> = {
+const TAG_CLASSES: Record<RecommendationDecision['tagTone'], string> = {
   blue: 'bg-blue-100 text-blue-800',
   amber: 'bg-amber-100 text-amber-800',
   sky: 'bg-sky-100 text-sky-800',
@@ -28,7 +27,7 @@ const TAG_CLASSES: Record<RankedAtlasProduct['tagTone'], string> = {
   slate: 'bg-slate-100 text-slate-800',
 }
 
-function PartnerCard({ partner }: { partner: RankedAtlasProduct }) {
+function PartnerCard({ partner }: { partner: RecommendationDecision }) {
   const recommended = partner.featured
   const url = `/go/${partner.partnerId}`
   return (
@@ -88,22 +87,18 @@ function HelpItem({ icon, title, text, href }: { icon: HelpIcon; title: string; 
   )
 }
 
-export default function Solutions({ name, debts, totalDebt, estimatedMonths, income }: SolutionsProps) {
-  const [catalog, setCatalog] = useState<AtlasCatalog | null>(null)
-  const [catalogError, setCatalogError] = useState(false)
+export default function Solutions({ name, debts, totalDebt, estimatedMonths }: SolutionsProps) {
+  const [recommendation, setRecommendation] = useState<RecommendationResult | null>(null)
+  const [recommendationError, setRecommendationError] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
-    fetch('/api/atlas/catalog?page=%2F', { signal: controller.signal, cache: 'no-store' })
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`Atlas respondeu ${response.status}`)
-        return response.json() as Promise<AtlasCatalog>
-      })
-      .then(setCatalog)
+    requestRecommendations('/', controller.signal)
+      .then(setRecommendation)
       .catch((error) => {
         if (error instanceof DOMException && error.name === 'AbortError') return
-        console.error('Atlas catalog unavailable:', error)
-        setCatalogError(true)
+        console.error('Recommendation engine unavailable:', error)
+        setRecommendationError(true)
       })
     return () => controller.abort()
   }, [])
@@ -113,7 +108,7 @@ export default function Solutions({ name, debts, totalDebt, estimatedMonths, inc
   const plan = buildExitPlan(debts)
   const firstPriority = plan[0]
   const financialSituation = debts.length === 1 ? 'Você registrou uma dívida.' : `Você registrou ${debts.length} dívidas.`
-  const rankedProducts = catalog ? rankAtlasProducts(catalog.products, buildAtlasContext(debts, totalDebt, income)) : []
+  const rankedProducts = recommendation?.recommendations ?? []
   const agreements = rankedProducts.filter((product) => product.section === 'renegotiation')
   const credit = rankedProducts.filter((product) => product.section === 'credit')
 
@@ -184,15 +179,19 @@ export default function Solutions({ name, debts, totalDebt, estimatedMonths, inc
         </div>
       </section>
 
-      {catalogError ? (
+      {recommendationError ? (
         <aside className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-900">
           As opções de parceiros estão temporariamente indisponíveis. Seu diagnóstico continua salvo; tente novamente em alguns instantes.
         </aside>
-      ) : !catalog ? (
+      ) : !recommendation ? (
         <section className="mb-8 rounded-2xl border border-zafi-border bg-white p-5" aria-live="polite">
-          <p className="text-sm font-bold text-zafi-text">Consultando opções compatíveis…</p>
-          <p className="mt-1 text-xs text-zafi-secondary">A Zafi está verificando o catálogo operacional e as regras vigentes.</p>
+          <p className="text-sm font-bold text-zafi-text">Analisando opções compatíveis…</p>
+          <p className="mt-1 text-xs text-zafi-secondary">A Zafi está aplicando ao seu perfil as regras vigentes do Atlas.</p>
         </section>
+      ) : rankedProducts.length === 0 ? (
+        <aside className="mb-8 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm leading-relaxed text-blue-900">
+          Nenhuma opção do catálogo atende com segurança às regras vigentes para o seu perfil neste momento.
+        </aside>
       ) : (
         <>
           <section aria-labelledby="acordos" className="mb-8">
