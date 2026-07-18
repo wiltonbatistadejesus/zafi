@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase'
-import type { AnalyticsConsent, AttributionCockpitSnapshot, CockpitSnapshot, TelemetryEventType } from './types'
+import type { AnalyticsConsent, AttributionCockpitSnapshot, CockpitSnapshot, OperationalMonitorSnapshot, TelemetryEventType } from './types'
 import type { NormalizedActionpayPostback, FlatPostbackPayload } from '@/lib/actionpay/postback'
 import type { PartnerDefinition } from '@/lib/partners'
 
@@ -194,4 +194,14 @@ export async function getAttributionCockpitSnapshot(recentLimit = 20): Promise<A
   })
   if (error || !data) throw new Error(`Attribution cockpit snapshot failed: ${error?.message ?? 'empty response'}`)
   return data as AttributionCockpitSnapshot
+}
+
+export async function getOperationalMonitorSnapshot(windowHours = 24): Promise<OperationalMonitorSnapshot> {
+  const { data, error } = await getSupabaseClient().rpc('operational_monitor_snapshot', {
+    p_secret: secret(),
+    p_window_hours: windowHours,
+    p_persist: true,
+  })
+  if (error || !data) throw new Error(`Operational monitor snapshot failed: ${error?.message ?? 'empty response'}`)
+  return data as OperationalMonitorSnapshot
 }

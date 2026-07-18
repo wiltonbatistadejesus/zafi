@@ -48,6 +48,37 @@ export type CockpitData = {
   funnel: FunnelStep[]
   partners: Metric[]
   revenue: Metric[]
+  operations: {
+    status: Signal
+    hasActivity: boolean
+    statusLabel: string
+    score: string
+    window: string
+    chain: Array<{
+      key: string
+      label: string
+      count: string
+      status: Signal
+      coverage: string
+      detail: string
+    }>
+    quality: Array<{
+      key: string
+      label: string
+      value: string
+      numerator: string
+      denominator: string
+      signal: Signal
+    }>
+    diagnostics: Array<{
+      code: string
+      severity: 'attention' | 'critical'
+      title: string
+      detail: string
+      count: string
+    }>
+    reconciliation: Metric[]
+  }
   attribution: {
     summary: Metric[]
     finance: Metric[]

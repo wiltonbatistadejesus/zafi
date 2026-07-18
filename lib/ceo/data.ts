@@ -1,4 +1,4 @@
-import { getAttributionCockpitSnapshot, getCockpitSnapshot } from '@/lib/telemetry/server'
+import { getAttributionCockpitSnapshot, getCockpitSnapshot, getOperationalMonitorSnapshot } from '@/lib/telemetry/server'
 import type { CockpitSnapshot, RevenueAmount } from '@/lib/telemetry/types'
 import type { CockpitData, Metric, Signal } from './types'
 
@@ -27,6 +27,18 @@ function coverage(value: number, total: number) {
   return total ? percentage(value, total) : 'Sem base'
 }
 
+function percentValue(value: number | string | null) {
+  return value === null ? 'Sem base' : `${Number(value).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`
+}
+
+function qualitySignal(value: number | string | null): Signal {
+  if (value === null) return 'neutral'
+  const numericValue = Number(value)
+  if (numericValue >= 99) return 'healthy'
+  if (numericValue >= 90) return 'attention'
+  return 'critical'
+}
+
 function sourceValue(snapshot: CockpitSnapshot, source: string) {
   return snapshot.sources.find((item) => item.source.toLowerCase() === source)?.value ?? 0
 }
@@ -41,9 +53,10 @@ function contentMetrics(snapshot: CockpitSnapshot): Metric[] {
 }
 
 export async function getCockpitData(): Promise<CockpitData> {
-  const [data, attribution] = await Promise.all([
+  const [data, attribution, operational] = await Promise.all([
     getCockpitSnapshot(),
     getAttributionCockpitSnapshot(),
+    getOperationalMonitorSnapshot(),
   ])
   const topPartner = data.partners[0]
   const topConversionPartner = data.conversion_partners[0]
@@ -54,6 +67,11 @@ export async function getCockpitData(): Promise<CockpitData> {
   const epc = todayRevenue && data.partner_clicked ? currency(todayRevenue.value / data.partner_clicked, todayRevenue.currency) : currency(0, 'BRL')
   const clickCoverage = coverage(attribution.clicks_total, attribution.affiliate_clicks_total)
   const conversionCoverage = coverage(attribution.conversions_total, attribution.affiliate_conversions_total)
+  const primaryDiagnostic = operational.diagnostics[0]
+  const operationalHealthSignal = operational.overall_status === 'neutral' ? 'attention' : operational.overall_status
+  const operationalStatusLabel = operational.overall_status === 'healthy' ? 'Cadeia saudável'
+    : operational.overall_status === 'critical' ? 'Falha crítica detectada'
+      : operational.overall_status === 'attention' ? 'Requer atenção' : 'Aguardando base'
 
   return {
     generatedAt: data.generated_at,
@@ -113,6 +131,43 @@ export async function getCockpitData(): Promise<CockpitData> {
       { label: 'Por visitante', value: revenuePerVisitor },
       { label: 'Por análise', value: revenuePerAnalysis },
     ],
+    operations: {
+      status: operational.overall_status,
+      hasActivity: operational.has_activity,
+      statusLabel: operationalStatusLabel,
+      score: operational.health_score === null ? 'Sem base' : `${Math.round(Number(operational.health_score))} / 100`,
+      window: `Últimas ${operational.window_hours}h · snapshots a cada 5 min`,
+      chain: operational.chain.map((stage) => ({
+        key: stage.key,
+        label: stage.label,
+        count: number.format(stage.count),
+        status: stage.status,
+        coverage: percentValue(stage.coverage),
+        detail: stage.detail,
+      })),
+      quality: operational.quality.map((metric) => ({
+        key: metric.key,
+        label: metric.label,
+        value: percentValue(metric.value),
+        numerator: number.format(metric.numerator),
+        denominator: number.format(metric.denominator),
+        signal: qualitySignal(metric.value),
+      })),
+      diagnostics: operational.diagnostics.map((diagnostic) => ({
+        code: diagnostic.code,
+        severity: diagnostic.severity,
+        title: diagnostic.title,
+        detail: diagnostic.detail,
+        count: number.format(diagnostic.count),
+      })),
+      reconciliation: [
+        { label: 'Conciliadas', value: `${number.format(operational.reconciliation.reconciled)} / ${number.format(operational.reconciliation.total)}`, signal: operational.reconciliation.total === 0 ? 'neutral' : operational.reconciliation.unreconciled === 0 ? 'healthy' : 'critical', detail: 'Conversões com estado, valor, moeda e origem consistentes' },
+        { label: 'Divergências', value: number.format(operational.reconciliation.unreconciled), signal: operational.reconciliation.total === 0 ? 'neutral' : operational.reconciliation.unreconciled === 0 ? 'healthy' : 'critical', detail: 'Registros que exigem investigação' },
+        { label: 'Postbacks aceitos', value: number.format(operational.reconciliation.postbacks_accepted), detail: `${number.format(operational.reconciliation.postbacks_duplicate)} repetido(s) sem duplicar receita` },
+        { label: 'Postbacks rejeitados', value: number.format(operational.reconciliation.postbacks_rejected), signal: operational.reconciliation.postbacks_rejected === 0 ? 'healthy' : 'attention', detail: 'Falharam na validação técnica ou de segurança' },
+        { label: 'Pendentes antigas', value: number.format(operational.reconciliation.stale_pending), signal: operational.reconciliation.stale_pending === 0 ? 'healthy' : 'attention', detail: 'Aguardando atualização há mais de 7 dias' },
+      ],
+    },
     attribution: {
       summary: [
         { label: 'Impressões hoje', value: number.format(attribution.impressions_today), detail: 'Cards efetivamente liberados para exibição' },
@@ -149,29 +204,30 @@ export async function getCockpitData(): Promise<CockpitData> {
       receivedAt: conversion.last_received_at,
     })),
     alerts: [
+      ...operational.diagnostics.slice(0, 2).map((diagnostic) => ({ signal: diagnostic.severity as Signal, title: diagnostic.title, detail: `${number.format(diagnostic.count)} ocorrência(s). ${diagnostic.detail}` })),
       ...(data.ga4_failed > 0 ? [{ signal: 'critical' as const, title: 'Falha de entrega ao GA4', detail: `${number.format(data.ga4_failed)} entrega(s) falharam hoje.` }] : []),
       { signal: (ga4Healthy ? 'healthy' : 'attention') as Signal, title: 'Telemetria persistente ativa', detail: `${number.format(data.ga4_accepted)} evento(s) aceitos pelo GA4 hoje.` },
       { signal: (attribution.unattributed_conversions_total === 0 ? 'healthy' : 'attention') as Signal, title: 'Cobertura de atribuição', detail: `${conversionCoverage} das conversões conectadas ao Recommendation Engine.` },
-      { signal: 'healthy' as const, title: 'Ciclo financeiro auditável', detail: `${number.format(data.conversions_total)} conversão(ões) aprovada(s) ou paga(s) com histórico idempotente.` },
-      { signal: (data.partner_clicked > 0 ? 'healthy' : 'attention') as Signal, title: 'Rota /go auditável', detail: `${number.format(data.partner_clicked)} clique(s) de parceiro persistidos hoje.` },
     ].slice(0, 4),
     actions: [
-      { priority: 'critical', title: 'Validar o primeiro ciclo atribuído', reason: 'Confirma impressão → clique → conversão na mesma decisão.', owner: 'Growth + Engenharia' },
-      { priority: 'attention', title: 'Confirmar evento de pagamento', reason: 'Separa receita aprovada de caixa efetivamente pago pela rede.', owner: 'CEO + Financeiro' },
-      { priority: 'opportunity', title: 'Monitorar cobertura por 7 dias', reason: 'Forma um baseline confiável sem otimização automática.', owner: 'CEO + Engenharia' },
+      primaryDiagnostic
+        ? { priority: primaryDiagnostic.severity === 'critical' ? 'critical' : 'attention', title: `Corrigir: ${primaryDiagnostic.title}`, reason: primaryDiagnostic.detail, owner: 'Engenharia' }
+        : { priority: 'opportunity', title: 'Validar um ciclo completo', reason: 'Confirma a saúde de todas as seis etapas com atividade real.', owner: 'Growth + Engenharia' },
+      { priority: 'attention', title: 'Revisar conciliação financeira', reason: `${number.format(operational.reconciliation.unreconciled)} registro(s) aguardam conciliação.`, owner: 'CEO + Financeiro' },
+      { priority: 'opportunity', title: 'Acompanhar a qualidade por 7 dias', reason: 'Forma o baseline operacional sem alterar o motor.', owner: 'CEO + Engenharia' },
     ],
     roadmap: {
-      current: 'OE-004 · Atribuição financeira',
-      next: 'Validação causal em produção',
-      progress: attribution.conversions_total > 0 ? 100 : 90,
-      milestone: attribution.conversions_total > 0 ? 'Impressão → decisão → clique → receita' : 'Infraestrutura pronta; aguarda conversão real atribuída',
+      current: 'OE-005 · Saúde operacional',
+      next: 'Baseline de confiabilidade em produção',
+      progress: operational.overall_status === 'healthy' ? 100 : operational.overall_status === 'critical' ? 70 : operational.overall_status === 'attention' ? 85 : 90,
+      milestone: operational.has_activity ? `${operational.diagnostics.length} diagnóstico(s) ativo(s) na janela` : 'Monitor ativo; aguarda atividade real da cadeia',
     },
     health: [
       { label: 'SEO', signal: 'healthy', detail: 'Base indexável' },
       { label: 'GEO', signal: 'healthy', detail: 'ORÁCULO estruturado' },
-      { label: 'Analytics', signal: ga4Healthy ? 'healthy' : 'critical', detail: ga4Healthy ? 'Eventos auditáveis' : 'Entregas com falha' },
-      { label: 'Monetização', signal: attribution.conversions_total > 0 ? 'healthy' : 'attention', detail: attribution.conversions_total > 0 ? 'Receita atribuída' : 'Aguardando conversão atribuída' },
-      { label: 'Infraestrutura', signal: 'healthy', detail: 'Banco como fonte oficial' },
+      { label: 'Analytics', signal: !ga4Healthy ? 'critical' : operationalHealthSignal, detail: operationalStatusLabel },
+      { label: 'Monetização', signal: operational.reconciliation.unreconciled > 0 ? 'critical' : operational.reconciliation.total > 0 ? 'healthy' : 'attention', detail: operational.reconciliation.total > 0 ? 'Conciliação monitorada' : 'Aguardando conversão' },
+      { label: 'Infraestrutura', signal: operationalHealthSignal, detail: `Saúde ${operational.health_score === null ? 'sem base' : `${Math.round(Number(operational.health_score))}/100`}` },
       { label: 'Conteúdo', signal: 'attention', detail: 'Conversão agora rastreável' },
     ],
   }

@@ -60,6 +60,11 @@ function Card({ className = '', children }: { className?: string; children: Reac
   return <section className={`${styles.card} ${className}`}>{children}</section>
 }
 
+function percentageWidth(value: string) {
+  const parsed = Number.parseFloat(value.replace(',', '.'))
+  return Number.isFinite(parsed) ? Math.max(0, Math.min(100, parsed)) : 0
+}
+
 export default function Cockpit({ data }: { data: CockpitData }) {
   const updated = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Sao_Paulo' }).format(new Date(data.generatedAt))
   const today = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', timeZone: 'America/Sao_Paulo' }).format(new Date(data.generatedAt))
@@ -70,7 +75,7 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         <div className={styles.brand}><span>zafi</span><i>CEO</i></div>
         <div className={styles.topbarCenter}>
           <span className={styles.environment}><StatusDot signal="healthy" /> Produção</span>
-          <span className={styles.sprint}>OE-004</span>
+          <span className={styles.sprint}>OE-005</span>
           <span className={styles.system}>Sistema operacional</span>
         </div>
         <div className={styles.topbarRight}>
@@ -135,6 +140,44 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         <Card className={styles.revenue}>
           <SectionHeading icon="revenue" eyebrow="Receita" title="Pulso financeiro" aside={<span className={styles.integrationBadge}><StatusDot signal="healthy" /> Banco financeiro</span>} />
           <Metrics items={data.revenue} compact />
+        </Card>
+
+        <Card className={styles.operations}>
+          <SectionHeading icon="pulse" eyebrow="OE-005 · Integridade operacional" title="Saúde da cadeia" aside={<span className={styles.integrationBadge}><StatusDot signal={data.operations.status} /> {data.operations.statusLabel}</span>} />
+          <div className={styles.operationsHero}>
+            <div><span>Índice de saúde</span><strong>{data.operations.score}</strong><small>{data.operations.window}</small></div>
+            <p>O monitor aponta onde a operação perdeu continuidade e mantém a evidência financeira separada da decisão do motor.</p>
+          </div>
+          <div className={styles.chainRail}>
+            {data.operations.chain.map((stage, index) => <div className={styles.chainSegment} key={stage.key}>
+              <div className={styles.chainNode}>
+                <span><StatusDot signal={stage.status} />{stage.label}</span>
+                <strong>{stage.count}</strong>
+                <small>{stage.coverage}</small>
+                <p>{stage.detail}</p>
+              </div>
+              {index < data.operations.chain.length - 1 && <b aria-hidden="true">→</b>}
+            </div>)}
+          </div>
+          <div className={styles.operationsDetail}>
+            <div className={styles.qualityPanel}>
+              <h3>Indicadores de qualidade</h3>
+              <div>{data.operations.quality.map((metric) => <div className={styles.qualityRow} key={metric.key}>
+                <span><StatusDot signal={metric.signal} /><strong>{metric.label}</strong><small>{metric.numerator} / {metric.denominator}</small></span>
+                <div><i style={{ width: `${percentageWidth(metric.value)}%` }} /></div><b>{metric.value}</b>
+              </div>)}</div>
+            </div>
+            <div className={styles.diagnosticPanel}>
+              <h3>Diagnóstico de falhas</h3>
+              {data.operations.diagnostics.length ? <div>{data.operations.diagnostics.slice(0, 6).map((diagnostic) => <div className={styles.diagnosticRow} key={diagnostic.code}>
+                <StatusDot signal={diagnostic.severity} /><span><strong>{diagnostic.title}</strong><small>{diagnostic.detail}</small></span><b>{diagnostic.count}</b>
+              </div>)}</div> : <div className={styles.operationalEmpty}><StatusDot signal={data.operations.hasActivity ? 'healthy' : 'neutral'} /><strong>{data.operations.hasActivity ? 'Nenhuma ruptura detectada' : 'Aguardando atividade real'}</strong><span>{data.operations.hasActivity ? 'A cadeia não possui divergências na janela monitorada.' : 'O monitor está ativo e não classifica ausência de dados como sucesso.'}</span></div>}
+            </div>
+          </div>
+          <div className={styles.reconciliationStrip}>
+            <h3>Conciliação financeira</h3>
+            <Metrics items={data.operations.reconciliation} compact />
+          </div>
         </Card>
 
         <Card className={styles.attribution}>

@@ -138,6 +138,69 @@ export type AttributionCockpitSnapshot = {
   }>
 }
 
+export type OperationalMonitorSnapshot = {
+  schema_version: number
+  snapshot_id: string | null
+  snapshot_key: string
+  generated_at: string
+  window_started_at: string
+  window_ended_at: string
+  window_hours: number
+  overall_status: 'healthy' | 'attention' | 'critical' | 'neutral'
+  health_score: number | string | null
+  has_activity: boolean
+  chain: Array<{
+    key: 'profile' | 'engine' | 'impression' | 'click' | 'conversion' | 'revenue'
+    label: string
+    count: number
+    status: 'healthy' | 'attention' | 'critical' | 'neutral'
+    coverage: number | string | null
+    detail: string
+  }>
+  quality: Array<{
+    key: string
+    label: string
+    value: number | string | null
+    numerator: number
+    denominator: number
+  }>
+  diagnostics: Array<{
+    code: string
+    stage: string
+    severity: 'attention' | 'critical'
+    title: string
+    detail: string
+    count: number
+  }>
+  reconciliation: {
+    total: number
+    attributed: number
+    reconciled: number
+    unreconciled: number
+    pending: number
+    approved: number
+    paid: number
+    reversed: number
+    stale_pending: number
+    postbacks_accepted: number
+    postbacks_duplicate: number
+    postbacks_rejected: number
+    revenue_created: RevenueAmount[]
+    revenue_approved: RevenueAmount[]
+    revenue_paid: RevenueAmount[]
+    discrepancies: Array<{
+      conversion_id: string
+      transaction_id: string
+      partner_name: string
+      status: string
+      expected_financial_state: string
+      observed_financial_state: string | null
+      issue_codes: string[]
+      last_received_at: string
+    }>
+  }
+}
+
 export type AffiliateConversion = {
   id: string
   transaction_id: string
