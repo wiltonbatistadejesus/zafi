@@ -147,7 +147,7 @@ Teste operacional concluído em produção:
 
 #### OE-001.1 — Fechar o Ciclo Financeiro da Zafi
 
-Status: infraestrutura concluída; ativação final na Actionpay depende da confirmação das macros oficiais da campanha.
+Status: integração ativa; aguardando a primeira conversão real da rede para encerrar o aceite financeiro operacional.
 
 - Endpoint autenticado `GET/POST /api/postbacks/actionpay`.
 - UUID próprio em cada clique Actionpay enviado pelo segmento `subaccount`.
@@ -158,6 +158,8 @@ Status: infraestrutura concluída; ativação final na Actionpay depende da conf
 - Receita, conversões, parceiros e histórico financeiro conectados ao CEO Cockpit, com atualização em até 10 segundos.
 - Segredo exclusivo configurado como variável sensível na Vercel para Production e Preview.
 - Contrato e procedimento de ativação documentados em `docs/actionpay-postback.md`.
+- Postback global Actionpay `18939` ativo para Criado, Aceito, Negado e Pago, em qualquer campanha.
+- Macros oficiais confirmadas diretamente na conta: `{uniqueid}`, `{offer}`, `{subid1}`, `{event}`, `{payment}`, `{currency}` e `{time}`.
 
 ## Academia Zafi
 

@@ -51,3 +51,12 @@ Modelo cadastrado, com o token substituído pelo segredo da Vercel:
 `https://meuzafi.com.br/api/postbacks/actionpay?token=SEGREDO&transaction_id={uniqueid}&click_id={subid1}&campaign_id={offer}&status={event}&commission={payment}&currency={currency}&event_at={time}&action_id={apid}&source_id={source}&aim_id={aim}&aim_type={aimType}`
 
 Depois de salvar os quatro estados, executar uma conversão real ou o teste oficial da rede e confirmar o mesmo `transaction_id` no histórico do Cockpit e na auditoria do banco.
+
+## Ativação em produção
+
+- Ativado na Actionpay em 18/07/2026.
+- Postback global ID `18939`.
+- Eventos: Criado, Aceito, Negado e Pago.
+- Faixa: qualquer campanha, com autoexclusão.
+- Estado inicial: ativo, com zero erros em 24 horas e em 7 dias.
+- Próxima validação: primeira ação real criada pela rede e sua posterior aceitação, rejeição ou confirmação de pagamento.
