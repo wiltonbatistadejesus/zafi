@@ -41,8 +41,8 @@ function normalizeWord(value: string) {
 function parseStatus(value: string | null): NormalizedActionpayPostback['status'] {
   if (!value) throw new PostbackValidationError('Status da conversão ausente.')
   const normalized = normalizeWord(value).replace(/[\s-]+/g, '_')
-  if (['accepted', 'approved', 'approve', 'allowed', 'aceito', 'aprovado', 'sale', '1'].includes(normalized)) return 'approved'
-  if (['pending', 'processing', 'in_processing', 'hold', 'em_processamento', '0'].includes(normalized)) return 'pending'
+  if (['accepted', 'approved', 'approve', 'allowed', 'aceito', 'aprovado', 'paid', 'pago', 'sale', '1'].includes(normalized)) return 'approved'
+  if (['created', 'pending', 'processing', 'in_processing', 'hold', 'em_processamento', '0'].includes(normalized)) return 'pending'
   if (['rejected', 'declined', 'denied', 'recusado', 'rejeitado', '2'].includes(normalized)) return 'rejected'
   if (['cancelled', 'canceled', 'cancelado', 'reversed', 'estornado', '3'].includes(normalized)) return 'cancelled'
   throw new PostbackValidationError(`Status de conversão não reconhecido: ${value.slice(0, 80)}`)
@@ -70,7 +70,7 @@ function parseDate(value: string | null): string {
 function canonicalIdempotencyKey(input: Omit<NormalizedActionpayPostback, 'idempotencyKey' | 'partner'>) {
   const canonical = [
     'actionpay', input.transactionId, input.status, input.commission ?? '', input.currency ?? '',
-    input.originalClickId ?? '', input.campaignId ?? '',
+    input.originalClickId ?? '', input.campaignId ?? '', input.eventAt,
   ].join('|')
   return createHash('sha256').update(canonical).digest('hex')
 }
@@ -123,7 +123,7 @@ export function hashRawPayload(rawBody: string, queryString: string) {
 }
 
 export function normalizeActionpayPostback(payload: FlatPostbackPayload): NormalizedActionpayPostback {
-  const transactionId = first(payload, ['transaction_id', 'transaction', 'action_id', 'actionid', 'order_id', 'orderid', 'tid'])
+  const transactionId = first(payload, ['transaction_id', 'uniqueid', 'transaction', 'action_id', 'actionid', 'order_id', 'orderid', 'tid'])
   if (!transactionId || transactionId.length > 200) throw new PostbackValidationError('Identificador da transação ausente ou inválido.')
 
   const clickCandidate = first(payload, ['click_id', 'clickid', 'subaccount', 'subid', 'subid1', 'subit1'])

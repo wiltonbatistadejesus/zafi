@@ -14,7 +14,7 @@ O token e qualquer assinatura recebida são removidos do payload antes da audito
 
 | Dado | Parâmetros aceitos |
 | --- | --- |
-| Transação | `transaction_id`, `transaction`, `action_id`, `actionid`, `order_id`, `orderid`, `tid` |
+| Transação | `transaction_id`, `uniqueid`, `transaction`, `action_id`, `actionid`, `order_id`, `orderid`, `tid` |
 | Clique Zafi | `click_id`, `clickid`, `subaccount`, `subid`, `subid1`, `subit1` |
 | Campanha | `campaign_id`, `campaignid`, `offer_id`, `offerid`, `offer`, `apid` |
 | Status | `status`, `event`, `action_status`, `actionstatus`, `state` |
@@ -40,7 +40,14 @@ A chave idempotente considera rede, transação, status, comissão, moeda, cliqu
 
 O Cockpit considera receita apenas quando o estado atual é `approved`. Atualizações aparecem no próximo ciclo automático do painel, em até 10 segundos.
 
-## Ativação na Actionpay
+## Contrato oficial confirmado na Actionpay
 
-Os nomes das macros de transação, clique, campanha, status, comissão e moeda devem ser copiados da tela oficial de postback/metas da Actionpay. Não substituir por nomes presumidos. Depois de salvar a URL oficial, executar uma conversão real ou o teste oficial da rede e confirmar o mesmo `transaction_id` no histórico do Cockpit e na auditoria do banco.
+As substituições especiais exibidas pela conta em 18/07/2026 são: `{event}`, `{uniqueid}`, `{apid}`, `{offer}`, `{source}`, `{aim}`, `{aimType}`, `{landing}`, `{time}`, `{date}`, `{clickDate}`, `{userAgent}`, `{country}`, `{city}`, `{subid1}` a `{subid5}`, `{payment}`, `{currency}`, `{totalPrice}` e `{status}`.
 
+A integração usa `{uniqueid}` como transação, `{subid1}` como clique Zafi, `{offer}` como campanha, `{event}` como transição de estado, `{payment}` como comissão, `{currency}` como moeda e `{time}` como instante idempotente. Os eventos oficiais são `created`, `accepted`, `rejected` e `paid`.
+
+Modelo cadastrado, com o token substituído pelo segredo da Vercel:
+
+`https://meuzafi.com.br/api/postbacks/actionpay?token=SEGREDO&transaction_id={uniqueid}&click_id={subid1}&campaign_id={offer}&status={event}&commission={payment}&currency={currency}&event_at={time}&action_id={apid}&source_id={source}&aim_id={aim}&aim_type={aimType}`
+
+Depois de salvar os quatro estados, executar uma conversão real ou o teste oficial da rede e confirmar o mesmo `transaction_id` no histórico do Cockpit e na auditoria do banco.
