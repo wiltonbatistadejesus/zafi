@@ -16,10 +16,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     const message = error instanceof Error ? error.message : ''
-    console.error('Recommendation pipeline failed:', error)
     if (/profile not found|session not recognized|financial context incomplete/.test(message)) {
       return NextResponse.json({ error: 'Recommendation context unavailable' }, { status: 409 })
     }
+    console.error('Recommendation pipeline failed:', error)
     return NextResponse.json({ error: 'Recommendation engine unavailable' }, { status: 503 })
   }
 }
