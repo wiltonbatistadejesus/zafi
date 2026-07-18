@@ -1,23 +1,51 @@
-import { Debt, DebtType } from './types'
+import type { AtlasContext, AtlasProduct, AtlasRule, RankedAtlasProduct } from '@/lib/atlas/types'
+import type { Debt } from '@/lib/types'
 
-type PartnerId = 'acordo-certo' | 'super-sim' | 'financia-tudo' | 'juros-baixos' | 'finanzero' | 'bom-pra-credito'
-
-const HIGH_INTEREST: DebtType[] = ['cartao', 'rotativo', 'emprestimo', 'crediario']
-
-/** Regras transparentes de ordenação. Não usa comissão ou clique como critério. */
-export function rankPartnerIds(ids: PartnerId[], debts: Debt[], totalDebt: number, income: number): PartnerId[] {
-  const hasExpensiveDebt = debts.some((debt) => HIGH_INTEREST.includes(debt.type))
-  const paymentPressure = income > 0 && totalDebt / income > 4
-
-  return [...ids].sort((a, b) => score(b) - score(a))
-
-  function score(id: PartnerId) {
-    if (id === 'acordo-certo') return hasExpensiveDebt || paymentPressure ? 100 : 80
-    if (id === 'super-sim') return hasExpensiveDebt ? 55 : 45
-    if (!hasExpensiveDebt || paymentPressure) return id === 'financia-tudo' ? 50 : 40
-    if (id === 'juros-baixos') return 75
-    if (id === 'financia-tudo') return 65
-    if (id === 'finanzero') return 60
-    return 55
+function compare(actual: unknown, operator: AtlasRule['operator'], expected: unknown): boolean {
+  if (operator === 'exists') return actual !== null && actual !== undefined
+  if (operator === 'contains_any') {
+    return Array.isArray(actual) && Array.isArray(expected) && expected.some((value) => actual.includes(value))
   }
+  if (operator === 'in') return Array.isArray(expected) && expected.includes(actual)
+  if (operator === 'eq') return actual === expected
+  if (operator === 'neq') return actual !== expected
+
+  if (typeof actual !== 'number' || typeof expected !== 'number' || !Number.isFinite(actual) || !Number.isFinite(expected)) return false
+  if (operator === 'gt') return actual > expected
+  if (operator === 'gte') return actual >= expected
+  if (operator === 'lt') return actual < expected
+  if (operator === 'lte') return actual <= expected
+  return false
+}
+
+export function buildAtlasContext(debts: Debt[], totalDebt: number, income: number): AtlasContext {
+  return {
+    debt_count: debts.length,
+    total_debt: totalDebt,
+    monthly_income: income,
+    debt_to_income_ratio: income > 0 ? totalDebt / income : null,
+    debt_types: Array.from(new Set(debts.map((debt) => debt.type))),
+  }
+}
+
+/** Avaliador genérico: atributos, operadores, limites e pesos vêm exclusivamente do Atlas. */
+export function rankAtlasProducts(products: AtlasProduct[], context: AtlasContext): RankedAtlasProduct[] {
+  return products
+    .map((product) => {
+      let eligible = true
+      let score = product.baseScore
+      const matchedRules: string[] = []
+
+      for (const rule of [...product.rules].sort((a, b) => a.priority - b.priority)) {
+        const matched = compare(context[rule.attribute], rule.operator, rule.expectedValue)
+        if (matched) matchedRules.push(rule.key)
+        if (rule.effect === 'require' && !matched) eligible = false
+        if (rule.effect === 'exclude' && matched) eligible = false
+        if (rule.effect === 'score' && matched) score += rule.scoreDelta ?? 0
+      }
+
+      return { ...product, eligible, score, matchedRules }
+    })
+    .filter((product) => product.eligible)
+    .sort((a, b) => b.score - a.score || a.displayOrder - b.displayOrder)
 }

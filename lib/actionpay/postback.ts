@@ -122,7 +122,7 @@ export function hashRawPayload(rawBody: string, queryString: string) {
   return createHash('sha256').update(`${queryString}\n${rawBody}`).digest('hex')
 }
 
-export function normalizeActionpayPostback(payload: FlatPostbackPayload): NormalizedActionpayPostback {
+export async function normalizeActionpayPostback(payload: FlatPostbackPayload): Promise<NormalizedActionpayPostback> {
   const transactionId = first(payload, ['transaction_id', 'uniqueid', 'transaction', 'action_id', 'actionid', 'order_id', 'orderid', 'tid'])
   if (!transactionId || transactionId.length > 200) throw new PostbackValidationError('Identificador da transação ausente ou inválido.')
 
@@ -132,8 +132,8 @@ export function normalizeActionpayPostback(payload: FlatPostbackPayload): Normal
 
   const campaignId = first(payload, ['campaign_id', 'campaignid', 'offer_id', 'offerid', 'offer', 'apid'])
   const explicitPartnerId = first(payload, ['partner_id', 'partnerid'])
-  const partner = (campaignId ? getPartnerByCampaignId(campaignId) : undefined)
-    ?? (explicitPartnerId ? getPartner(explicitPartnerId) : undefined)
+  const partner = (campaignId ? await getPartnerByCampaignId(campaignId) : undefined)
+    ?? (explicitPartnerId ? await getPartner(explicitPartnerId) : undefined)
     ?? null
   if (!originalClickId && !partner) throw new PostbackValidationError('Não foi possível identificar o clique, parceiro ou campanha.')
 

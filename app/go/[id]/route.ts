@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getTrackedAffiliateLink } from '@/lib/partner-links.server'
-import { getPartner } from '@/lib/partners'
+import { getPartner, type PartnerDefinition } from '@/lib/partners'
 import { recordAffiliateClick, recordPartnerClick } from '@/lib/telemetry/server'
 import type { AnalyticsConsent } from '@/lib/telemetry/types'
 
@@ -9,12 +9,21 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const startedAt = Date.now()
   const requestId = request.headers.get('x-vercel-id') ?? crypto.randomUUID()
-  const partner = getPartner(params.id)
+  let partner: PartnerDefinition | undefined
+  try {
+    partner = await getPartner(params.id)
+  } catch (error) {
+    console.error(JSON.stringify({
+      level: 'error', message: 'atlas_partner_lookup_failed', route: '/go/[id]', requestId,
+      partnerId: params.id, error: error instanceof Error ? error.message : String(error),
+    }))
+    return NextResponse.json({ error: 'Catálogo de parceiros temporariamente indisponível.' }, { status: 503 })
+  }
   if (!partner) return NextResponse.redirect(new URL('/', request.url))
 
   const affiliateClickId = crypto.randomUUID()
-  const destination = getTrackedAffiliateLink(partner.id, affiliateClickId)
-  if (!partner.active || !destination) {
+  const destination = getTrackedAffiliateLink(partner, affiliateClickId)
+  if (!partner.active) {
     return NextResponse.json({ error: 'Parceiro temporariamente indisponível.' }, { status: 410 })
   }
 

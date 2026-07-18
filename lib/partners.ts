@@ -1,38 +1,42 @@
-export type PartnerId =
-  | 'acordo-certo'
-  | 'super-sim'
-  | 'financia-tudo'
-  | 'juros-baixos'
-  | 'finanzero'
-  | 'bom-pra-credito'
-  | 'consiga-mais'
+import 'server-only'
+
+import { getSupabaseClient } from '@/lib/supabase'
 
 export type PartnerDefinition = {
-  id: PartnerId
+  id: string
   name: string
   campaignId: string
   campaignName: string
-  network: 'actionpay' | 'direct'
+  network: 'actionpay' | 'direct' | 'other'
   active: boolean
-  pages: string[]
-  remunerationModel: 'pending_confirmation'
-  note?: string
+  operationalStatus: 'healthy' | 'degraded' | 'disabled' | 'pending_validation'
+  destinationUrl: string
+  clickIdStrategy: 'replace_subaccount_segment' | 'query_parameter' | 'none'
+  remunerationModel: 'pending_confirmation' | 'cpc' | 'cpl' | 'cpa' | 'revenue_share' | 'fixed'
+  remunerationStatus: 'pending_confirmation' | 'confirmed' | 'expired'
+  note?: string | null
 }
 
-export const PARTNERS: Record<PartnerId, PartnerDefinition> = {
-  'acordo-certo': { id: 'acordo-certo', name: 'Acordo Certo', campaignId: '187558', campaignName: 'Actionpay ref. 187558 — nome oficial pendente', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation', note: 'A vitrine pública possui mais de uma campanha Acordo Certo.' },
-  'super-sim': { id: 'super-sim', name: 'SuperSim', campaignId: '177702', campaignName: 'SuperSim — Empréstimo Pessoal', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation' },
-  'financia-tudo': { id: 'financia-tudo', name: 'FinanciaTudo', campaignId: 'financia-tudo-direct', campaignName: 'Produtos FinanciaTudo — link direto', network: 'direct', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation' },
-  'juros-baixos': { id: 'juros-baixos', name: 'Juros Baixos', campaignId: '179945', campaignName: 'Juros Baixos — Empréstimo pessoal', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation', note: 'Destino validado; meta e remuneração ainda dependem da tela oficial da campanha.' },
-  finanzero: { id: 'finanzero', name: 'FinanZero', campaignId: '180635', campaignName: 'FinanZero — Empréstimos', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation' },
-  'bom-pra-credito': { id: 'bom-pra-credito', name: 'Bom Pra Crédito', campaignId: '185636', campaignName: 'Bom Pra Crédito — Actionpay ref. 185636', network: 'actionpay', active: true, pages: ['Resultado da análise (/)'], remunerationModel: 'pending_confirmation', note: 'Link oficial informado pelo afiliado em 17/07/2026; remuneração e meta seguem pendentes de confirmação.' },
-  'consiga-mais': { id: 'consiga-mais', name: 'ConsigMais', campaignId: '184986', campaignName: 'ConsigMais — FGTS', network: 'actionpay', active: false, pages: [], remunerationModel: 'pending_confirmation', note: 'Desativado: a campanha resolve para o anunciante correto, mas o destino retornou ERR_HTTP2_PROTOCOL_ERROR no teste controlado.' },
+function secret() {
+  const value = process.env.TELEMETRY_SERVER_SECRET
+  if (!value) throw new Error('TELEMETRY_SERVER_SECRET is not configured')
+  return value
 }
 
-export function getPartner(id: string): PartnerDefinition | undefined {
-  return PARTNERS[id as PartnerId]
+async function resolvePartner(slug: string | null, campaignId: string | null) {
+  const { data, error } = await getSupabaseClient().rpc('atlas_resolve_partner', {
+    p_secret: secret(),
+    p_slug: slug,
+    p_campaign_id: campaignId,
+  })
+  if (error) throw new Error(`Atlas partner lookup failed: ${error.message}`)
+  return data ? data as PartnerDefinition : undefined
 }
 
-export function getPartnerByCampaignId(campaignId: string): PartnerDefinition | undefined {
-  return Object.values(PARTNERS).find((partner) => partner.campaignId === campaignId)
+export function getPartner(id: string) {
+  return resolvePartner(id, null)
+}
+
+export function getPartnerByCampaignId(campaignId: string) {
+  return resolvePartner(null, campaignId)
 }

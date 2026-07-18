@@ -1,12 +1,14 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import Card from '@/components/Card'
 import Logo from '@/components/Logo'
 import { Debt, DEBT_TYPE_LABELS } from '@/lib/types'
 import { buildExitPlan, findMostDangerousDebt, formatBRL } from '@/lib/calculations'
-import { rankPartnerIds } from '@/lib/recommendations'
+import { buildAtlasContext, rankAtlasProducts } from '@/lib/recommendations'
 import { buildPartnerTrackingUrl } from '@/lib/telemetry/client'
+import type { AtlasCatalog, RankedAtlasProduct } from '@/lib/atlas/types'
 
 interface SolutionsProps {
   name: string
@@ -16,97 +18,29 @@ interface SolutionsProps {
   income: number
 }
 
-type Partner = {
-  id: string
-  name: string
-  description: string
-  reason: string
-  tag: string
-  tagClass: string
-  icon: string
-  url: string
-  recommended?: boolean
+const TAG_CLASSES: Record<RankedAtlasProduct['tagTone'], string> = {
+  blue: 'bg-blue-100 text-blue-800',
+  amber: 'bg-amber-100 text-amber-800',
+  sky: 'bg-sky-100 text-sky-800',
+  violet: 'bg-violet-100 text-violet-800',
+  cyan: 'bg-cyan-100 text-cyan-800',
+  emerald: 'bg-emerald-100 text-emerald-800',
+  slate: 'bg-slate-100 text-slate-800',
 }
 
-const ACORDOS: Partner[] = [
-  {
-    id: 'acordo-certo',
-    name: 'Acordo Certo',
-    description: 'Uma opção para consultar acordos e negociar dívidas diretamente pela internet.',
-    reason: 'É a primeira opção porque renegociar pode reduzir juros e encurtar seu caminho de saída sem criar uma nova dívida.',
-    tag: 'Recomendado pela Zafi',
-    tagClass: 'bg-blue-100 text-blue-800',
-    icon: '✓',
-    url: '/go/acordo-certo',
-    recommended: true,
-  },
-  {
-    id: 'super-sim',
-    name: 'SuperSim',
-    description: 'Alternativa digital para simular uma solução de crédito ou reorganização.',
-    reason: 'Incluímos como alternativa para comparar condições antes de tomar qualquer decisão.',
-    tag: 'Aprovação rápida',
-    tagClass: 'bg-amber-100 text-amber-800',
-    icon: '↗',
-    url: '/go/super-sim',
-  },
-]
-
-const CREDITO: Partner[] = [
-  {
-    id: 'financia-tudo',
-    name: 'FinanciaTudo',
-    description: 'Uma opção adicional para consultar soluções financeiras e comparar propostas.',
-    reason: 'Incluímos para ampliar sua comparação. Avalie o custo total, o prazo e se a nova condição realmente reduz os juros da dívida atual.',
-    tag: 'Compare propostas',
-    tagClass: 'bg-sky-100 text-sky-800',
-    icon: '↗',
-    url: '/go/financia-tudo',
-  },
-  {
-    id: 'juros-baixos',
-    name: 'Juros Baixos',
-    description: 'Comparador de crédito para avaliar propostas de diferentes instituições.',
-    reason: 'Só vale considerar crédito se a taxa total for menor do que a da sua dívida atual. Compare o CET antes de contratar.',
-    tag: 'Menor taxa',
-    tagClass: 'bg-violet-100 text-violet-800',
-    icon: '%',
-    url: '/go/juros-baixos',
-    recommended: true,
-  },
-  {
-    id: 'finanzero',
-    name: 'FinanZero',
-    description: 'Plataforma para consultar e comparar ofertas de crédito.',
-    reason: 'Foi incluída para você ter mais de uma proposta e não aceitar a primeira condição disponível.',
-    tag: 'Compare propostas',
-    tagClass: 'bg-cyan-100 text-cyan-800',
-    icon: '≋',
-    url: '/go/finanzero',
-  },
-  {
-    id: 'bom-pra-credito',
-    name: 'Bom Pra Crédito',
-    description: 'Outra alternativa para buscar propostas adequadas ao seu perfil.',
-    reason: 'Ter uma opção adicional melhora sua comparação de prazo, parcelas e custo total.',
-    tag: 'Análise online',
-    tagClass: 'bg-emerald-100 text-emerald-800',
-    icon: '+',
-    url: '/go/bom-pra-credito',
-  },
-]
-
-function PartnerCard({ partner }: { partner: Partner }) {
+function PartnerCard({ partner }: { partner: RankedAtlasProduct }) {
+  const recommended = partner.featured
+  const url = `/go/${partner.partnerId}`
   return (
-    <article className={`rounded-2xl border bg-white p-5 shadow-sm ${partner.recommended ? 'border-blue-300 ring-1 ring-blue-100' : 'border-zafi-border'}`}>
+    <article className={`rounded-2xl border bg-white p-5 shadow-sm ${recommended ? 'border-blue-300 ring-1 ring-blue-100' : 'border-zafi-border'}`}>
       <div className="flex gap-3">
-        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-lg font-black ${partner.recommended ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700'}`} aria-hidden="true">
+        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-lg font-black ${recommended ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700'}`} aria-hidden="true">
           {partner.icon}
         </span>
         <div className="min-w-0 flex-1">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <h4 className="font-bold text-zafi-text">{partner.name}</h4>
-            <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${partner.tagClass}`}>{partner.tag}</span>
+            <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${TAG_CLASSES[partner.tagTone]}`}>{partner.tag}</span>
           </div>
           <p className="text-sm leading-relaxed text-zafi-secondary">{partner.description}</p>
           <div className="mt-3 rounded-xl bg-slate-50 px-3 py-2.5">
@@ -114,9 +48,9 @@ function PartnerCard({ partner }: { partner: Partner }) {
             <p className="mt-1 text-xs leading-relaxed text-zafi-secondary">{partner.reason}</p>
           </div>
           <a
-            href={partner.url}
+            href={url}
             onClick={(event) => {
-              event.currentTarget.href = buildPartnerTrackingUrl(partner.url)
+              event.currentTarget.href = buildPartnerTrackingUrl(url)
             }}
             target="_blank"
             rel="noopener noreferrer sponsored"
@@ -155,15 +89,33 @@ function HelpItem({ icon, title, text, href }: { icon: HelpIcon; title: string; 
 }
 
 export default function Solutions({ name, debts, totalDebt, estimatedMonths, income }: SolutionsProps) {
+  const [catalog, setCatalog] = useState<AtlasCatalog | null>(null)
+  const [catalogError, setCatalogError] = useState(false)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetch('/api/atlas/catalog?page=%2F', { signal: controller.signal, cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`Atlas respondeu ${response.status}`)
+        return response.json() as Promise<AtlasCatalog>
+      })
+      .then(setCatalog)
+      .catch((error) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return
+        console.error('Atlas catalog unavailable:', error)
+        setCatalogError(true)
+      })
+    return () => controller.abort()
+  }, [])
+
   const firstName = name.split(' ')[0]
   const mostDangerousDebt = findMostDangerousDebt(debts)
   const plan = buildExitPlan(debts)
   const firstPriority = plan[0]
   const financialSituation = debts.length === 1 ? 'Você registrou uma dívida.' : `Você registrou ${debts.length} dívidas.`
-  const rankedAgreements = rankPartnerIds(ACORDOS.map((partner) => partner.id) as ('acordo-certo' | 'super-sim')[], debts, totalDebt, income)
-  const rankedCredit = rankPartnerIds(CREDITO.map((partner) => partner.id) as ('financia-tudo' | 'juros-baixos' | 'finanzero' | 'bom-pra-credito')[], debts, totalDebt, income)
-  const agreements = rankedAgreements.map((id) => ACORDOS.find((partner) => partner.id === id)!).filter(Boolean)
-  const credit = rankedCredit.map((id) => CREDITO.find((partner) => partner.id === id)!).filter(Boolean)
+  const rankedProducts = catalog ? rankAtlasProducts(catalog.products, buildAtlasContext(debts, totalDebt, income)) : []
+  const agreements = rankedProducts.filter((product) => product.section === 'renegotiation')
+  const credit = rankedProducts.filter((product) => product.section === 'credit')
 
   return (
     <div className="mx-auto max-w-lg px-4 py-8 pb-16">
@@ -232,19 +184,32 @@ export default function Solutions({ name, debts, totalDebt, estimatedMonths, inc
         </div>
       </section>
 
-      <section aria-labelledby="acordos" className="mb-8">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-zafi-blue">Seu primeiro movimento</p>
-        <h2 id="acordos" className="mt-1 text-xl font-extrabold text-zafi-text">Comece pela negociação</h2>
-        <p className="mt-1 text-sm leading-relaxed text-zafi-secondary">Priorize acordos com o credor. É a forma mais direta de tentar reduzir o saldo e os juros.</p>
-        <div className="mt-4 space-y-3">{agreements.map((partner) => <PartnerCard key={partner.id} partner={partner} />)}</div>
-      </section>
+      {catalogError ? (
+        <aside className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-900">
+          As opções de parceiros estão temporariamente indisponíveis. Seu diagnóstico continua salvo; tente novamente em alguns instantes.
+        </aside>
+      ) : !catalog ? (
+        <section className="mb-8 rounded-2xl border border-zafi-border bg-white p-5" aria-live="polite">
+          <p className="text-sm font-bold text-zafi-text">Consultando opções compatíveis…</p>
+          <p className="mt-1 text-xs text-zafi-secondary">A Zafi está verificando o catálogo operacional e as regras vigentes.</p>
+        </section>
+      ) : (
+        <>
+          <section aria-labelledby="acordos" className="mb-8">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-zafi-blue">Seu primeiro movimento</p>
+            <h2 id="acordos" className="mt-1 text-xl font-extrabold text-zafi-text">Comece pela negociação</h2>
+            <p className="mt-1 text-sm leading-relaxed text-zafi-secondary">Priorize acordos com o credor. É a forma mais direta de tentar reduzir o saldo e os juros.</p>
+            <div className="mt-4 space-y-3">{agreements.map((partner) => <PartnerCard key={partner.id} partner={partner} />)}</div>
+          </section>
 
-      <section aria-labelledby="credito" className="mb-8 border-t border-zafi-border pt-7">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-violet-700">Somente se fizer sentido</p>
-        <h2 id="credito" className="mt-1 text-xl font-extrabold text-zafi-text">Crédito para trocar juros caros</h2>
-        <p className="mt-1 text-sm leading-relaxed text-zafi-secondary">Considere apenas se o custo total for menor que o da dívida atual. Nunca contrate sem comparar.</p>
-        <div className="mt-4 space-y-3">{credit.map((partner) => <PartnerCard key={partner.id} partner={partner} />)}</div>
-      </section>
+          <section aria-labelledby="credito" className="mb-8 border-t border-zafi-border pt-7">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-violet-700">Somente se fizer sentido</p>
+            <h2 id="credito" className="mt-1 text-xl font-extrabold text-zafi-text">Crédito para trocar juros caros</h2>
+            <p className="mt-1 text-sm leading-relaxed text-zafi-secondary">Considere apenas se o custo total for menor que o da dívida atual. Nunca contrate sem comparar.</p>
+            <div className="mt-4 space-y-3">{credit.map((partner) => <PartnerCard key={partner.id} partner={partner} />)}</div>
+          </section>
+        </>
+      )}
 
       <section aria-labelledby="ajuda" className="mb-6">
         <h2 id="ajuda" className="mb-3 text-base font-extrabold text-zafi-text">Ainda precisa de ajuda?</h2>

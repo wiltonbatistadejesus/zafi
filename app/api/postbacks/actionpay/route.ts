@@ -67,7 +67,7 @@ async function handle(request: NextRequest) {
   log('info', { level: 'info', message: 'actionpay_postback_start', route, requestId, rawPayloadHash })
 
   try {
-    const normalized = normalizeActionpayPostback(payload)
+    const normalized = await normalizeActionpayPostback(payload)
     const persisted = await recordActionpayPostback({
       requestId,
       normalized,
