@@ -12,7 +12,7 @@ import CurrencyInput from '@/components/CurrencyInput'
 
 interface SimulatorProps {
   debts: Debt[]
-  onNext: (lead: { name: string; email: string; income: number; estimatedMonths: number | null; contactConsent: boolean }) => void
+  onNext: (lead: { name: string; email: string; income: number; estimatedMonths: number | null; contactConsent: boolean }) => void | Promise<void>
   onBack: () => void
 }
 
@@ -26,11 +26,11 @@ export default function Simulator({ debts, onNext, onBack }: SimulatorProps) {
   const income = parseBRL(incomeMasked)
   const result = income > 0 ? simulate(income, debts) : null
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim() || !email.trim()) return
     setSubmitted(true)
-    onNext({
+    await onNext({
       name: name.trim(),
       email: email.trim(),
       income,

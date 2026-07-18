@@ -3,6 +3,8 @@
 import Script from 'next/script'
 import { useCallback, useEffect, useState } from 'react'
 import { trackTelemetryEvent } from '@/lib/telemetry/client'
+import { saveAnalyticsConsent } from '@/lib/profile/client'
+import { PROFILE_POLICY_VERSION } from '@/lib/profile/schema'
 
 const CONSENT_KEY = 'zafi_analytics_consent'
 type Consent = 'granted' | 'denied' | null
@@ -36,15 +38,32 @@ export default function AnalyticsIntegrations() {
     const stored = window.localStorage.getItem(CONSENT_KEY)
     if (stored === 'granted' || stored === 'denied') {
       setConsent(stored)
-      if (!internalPage) trackPageViewOnce()
+      if (!internalPage) {
+        const syncKey = `zafi_consent_synced:${PROFILE_POLICY_VERSION}:${stored}`
+        if (!window.sessionStorage.getItem(syncKey)) {
+          saveAnalyticsConsent(stored)
+            .then(() => window.sessionStorage.setItem(syncKey, 'true'))
+            .catch((error) => console.error('Consent sync failed:', error))
+            .finally(trackPageViewOnce)
+        } else {
+          trackPageViewOnce()
+        }
+      }
     }
     setReady(true)
   }, [trackPageViewOnce])
 
-  function chooseConsent(value: Exclude<Consent, null>) {
+  async function chooseConsent(value: Exclude<Consent, null>) {
     window.localStorage.setItem(CONSENT_KEY, value)
     setConsent(value)
-    window.setTimeout(trackPageViewOnce, 0)
+    try {
+      await saveAnalyticsConsent(value)
+      window.sessionStorage.setItem(`zafi_consent_synced:${PROFILE_POLICY_VERSION}:${value}`, 'true')
+    } catch (error) {
+      console.error('Consent persistence failed:', error)
+    } finally {
+      window.setTimeout(trackPageViewOnce, 0)
+    }
   }
 
   if (!hasAnalytics || isInternalPage) return null

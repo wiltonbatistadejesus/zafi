@@ -15,6 +15,7 @@ import { useState } from 'react'
 import { Debt } from '@/lib/types'
 import { calcTotalDebt } from '@/lib/calculations'
 import { getAnalysisDurationSeconds, markAnalysisStarted, trackTelemetryEvent } from '@/lib/telemetry/client'
+import { saveProfileStage } from '@/lib/profile/client'
 
 import Hero from '@/components/steps/Hero'
 import DebtRegistration from '@/components/steps/DebtRegistration'
@@ -55,6 +56,21 @@ export default function Home() {
     setDebts((prev) => prev.filter((d) => d.id !== id))
   }
 
+  async function handleFinancialContextNext() {
+    try {
+      await saveProfileStage({
+        stage: 'financial_context',
+        totalDebt: calcTotalDebt(debts),
+        debtCount: debts.length,
+        debtTypes: Array.from(new Set(debts.map((debt) => debt.type))),
+        creditors: Array.from(new Set(debts.map((debt) => debt.creditor?.trim()).filter((value): value is string => Boolean(value)))),
+      })
+    } catch (err) {
+      console.error('Financial profile save failed:', err)
+    }
+    setStep(2)
+  }
+
   // ── Lead capture ─────────────────────────────────
   async function handleSimulatorNext(lead: {
     name: string
@@ -69,21 +85,17 @@ export default function Home() {
 
     // Save lead to Supabase via API route
     try {
-      await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: lead.name,
-          email: lead.email,
-          totalDebt: calcTotalDebt(debts),
-          income: lead.income,
-          estimatedMonths: lead.estimatedMonths,
-          contactConsent: lead.contactConsent,
-        }),
+      await saveProfileStage({
+        stage: 'identity_and_income',
+        fullName: lead.name,
+        email: lead.email,
+        monthlyIncome: lead.income,
+        estimatedMonths: lead.estimatedMonths,
+        contactConsent: lead.contactConsent,
       })
     } catch (err) {
       // Non-blocking — user still advances even if Supabase is unavailable
-      console.error('Lead save failed:', err)
+      console.error('Identity profile save failed:', err)
     }
 
     try {
@@ -123,7 +135,7 @@ export default function Home() {
             debts={debts}
             onAddDebt={addDebt}
             onRemoveDebt={removeDebt}
-            onNext={() => setStep(2)}
+            onNext={handleFinancialContextNext}
           />
         )
 

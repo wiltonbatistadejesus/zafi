@@ -44,10 +44,14 @@ export default function PrivacyPage() {
             <ul className="list-disc list-inside mt-2 space-y-1 text-zafi-secondary">
               <li><strong className="text-zafi-text">Nome</strong> — para personalizar sua experiência</li>
               <li><strong className="text-zafi-text">E-mail</strong> — para eventual contato e suporte</li>
-              <li><strong className="text-zafi-text">Renda e valor de dívidas</strong> — usados localmente no navegador para as simulações; o resumo (total da dívida, estimativa de parcelas) é salvo para fins de análise interna</li>
+              <li><strong className="text-zafi-text">Renda e contexto das dívidas</strong> — para montar o diagnóstico, a simulação e recomendações adequadas</li>
+              <li><strong className="text-zafi-text">Jornada de uso</strong> — eventos como início e conclusão da análise e clique em parceiro, vinculados a um identificador pseudonimizado</li>
             </ul>
             <p className="mt-2">
               <strong>Não coletamos</strong> dados bancários, CPF, senha ou qualquer informação sensível de identificação financeira.
+            </p>
+            <p className="mt-2">
+              A coleta é progressiva: primeiro entendemos as dívidas e somente depois solicitamos renda e identidade. Você não precisa fornecer todos os dados de uma vez.
             </p>
           </Section>
 
@@ -76,8 +80,9 @@ export default function PrivacyPage() {
               Processamos seus dados com base em:
             </p>
             <ul className="list-disc list-inside mt-2 space-y-1 text-zafi-secondary">
-              <li><strong className="text-zafi-text">Consentimento</strong> — ao preencher o formulário, você concorda com esta política</li>
-              <li><strong className="text-zafi-text">Legítimo interesse</strong> — para melhoria do serviço e análise agregada</li>
+              <li><strong className="text-zafi-text">Consentimento específico</strong> — para analytics e relacionamento, cada finalidade com escolha separada e registro da versão apresentada</li>
+              <li><strong className="text-zafi-text">Execução do serviço solicitado</strong> — para produzir o diagnóstico e apresentar o plano financeiro</li>
+              <li><strong className="text-zafi-text">Legítimo interesse</strong> — quando aplicável, com avaliação e proteção dos seus direitos</li>
             </ul>
           </Section>
 
@@ -117,6 +122,9 @@ export default function PrivacyPage() {
             </p>
             <p>
               As ferramentas de análise só são carregadas após sua escolha. Você pode recusar sem perder funcionalidades. A preferência fica salva no seu navegador e pode ser apagada ao limpar os dados do site.
+            </p>
+            <p>
+              A decisão também é registrada de forma auditável e pode ser atualizada ou revogada futuramente. Até disponibilizarmos uma central de preferências, você pode solicitar a alteração pelo contato abaixo.
             </p>
           </Section>
 

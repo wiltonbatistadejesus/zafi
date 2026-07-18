@@ -9,58 +9,12 @@
 // centralized and easy to extend (e.g. send email).
 // -----------------------------------------------
 
-import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseClient } from '@/lib/supabase'
+import { NextResponse } from 'next/server'
 
 // Shape of the request body
-interface LeadPayload {
-  name: string
-  email: string
-  totalDebt: number
-  income?: number
-  estimatedMonths?: number | null
-  contactConsent?: boolean
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    const body: LeadPayload = await req.json()
-
-    // Basic validation
-    if (!body.name || !body.email || !body.totalDebt) {
-      return NextResponse.json(
-        { error: 'Missing required fields: name, email, totalDebt' },
-        { status: 400 }
-      )
-    }
-
-    // Email format check (simple)
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)
-    if (!emailOk) {
-      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
-    }
-
-    // Insert into Supabase
-    const supabase = getSupabaseClient()
-    const { error } = await supabase.from('leads').insert([
-      {
-        name: body.name,
-        email: body.email,
-        total_debt: body.totalDebt,
-        income: body.income ?? null,
-        est_months: body.estimatedMonths ?? null,
-        contact_consent: body.contactConsent ?? false,
-      },
-    ])
-
-    if (error) {
-      console.error('Supabase insert error:', error)
-      return NextResponse.json({ error: 'Database error' }, { status: 500 })
-    }
-
-    return NextResponse.json({ success: true }, { status: 201 })
-  } catch (err) {
-    console.error('Unexpected error in /api/leads:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  }
+export async function POST() {
+  return NextResponse.json(
+    { error: 'Legacy endpoint retired; use the progressive profile flow.' },
+    { status: 410 }
+  )
 }
