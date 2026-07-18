@@ -12,6 +12,7 @@ const signalLabels: Record<Signal, string> = {
 const financeStatusLabels = {
   pending: 'Em processamento',
   approved: 'Aprovada',
+  paid: 'Paga',
   rejected: 'Rejeitada',
   cancelled: 'Cancelada',
 }
@@ -69,7 +70,7 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         <div className={styles.brand}><span>zafi</span><i>CEO</i></div>
         <div className={styles.topbarCenter}>
           <span className={styles.environment}><StatusDot signal="healthy" /> Produção</span>
-          <span className={styles.sprint}>OE-001.1</span>
+          <span className={styles.sprint}>OE-004</span>
           <span className={styles.system}>Sistema operacional</span>
         </div>
         <div className={styles.topbarRight}>
@@ -134,6 +135,27 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         <Card className={styles.revenue}>
           <SectionHeading icon="revenue" eyebrow="Receita" title="Pulso financeiro" aside={<span className={styles.integrationBadge}><StatusDot signal="healthy" /> Banco financeiro</span>} />
           <Metrics items={data.revenue} compact />
+        </Card>
+
+        <Card className={styles.attribution}>
+          <SectionHeading icon="funnel" eyebrow="OE-004 · Atribuição" title="Da decisão ao resultado financeiro" aside={<span className={styles.integrationBadge}><StatusDot signal="healthy" /> Snapshots preservados</span>} />
+          <Metrics items={data.attribution.summary} compact />
+          <div className={styles.financeStages}>
+            {data.attribution.finance.map((stage, index) => <div key={stage.label}>
+              <i>0{index + 1}</i><span><small>{stage.label}</small><strong>{stage.value}</strong><em>{stage.detail}</em></span>
+              {index < data.attribution.finance.length - 1 && <b>→</b>}
+            </div>)}
+          </div>
+          {data.attribution.topDecisions.length ? (
+            <div className={styles.attributionTable}>
+              <div className={styles.attributionHead}><span>Decisão</span><span>Impressões</span><span>Cliques</span><span>Conversões</span><span>Aprovada</span><span>Paga</span></div>
+              {data.attribution.topDecisions.map((decision) => <div className={styles.attributionRow} key={decision.id}>
+                <span><strong>{decision.product}</strong><small>{decision.partner}</small></span>
+                <span>{decision.impressions}</span><span>{decision.clicks}</span><span>{decision.conversions}</span>
+                <span>{decision.approvedRevenue}</span><span>{decision.paidRevenue}</span>
+              </div>)}
+            </div>
+          ) : <div className={styles.ledgerEmpty}><strong>Nenhuma atribuição real ainda</strong><span>A primeira análise após a OE-004 iniciará o histórico por decisão automaticamente.</span></div>}
         </Card>
 
         <Card className={styles.ledger}>

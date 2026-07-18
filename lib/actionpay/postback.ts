@@ -11,7 +11,7 @@ export type NormalizedActionpayPostback = {
   originalClickId: string | null
   partner: PartnerDefinition | null
   campaignId: string | null
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled'
+  status: 'pending' | 'approved' | 'paid' | 'rejected' | 'cancelled'
   commission: number | null
   currency: string | null
   eventAt: string
@@ -41,7 +41,8 @@ function normalizeWord(value: string) {
 function parseStatus(value: string | null): NormalizedActionpayPostback['status'] {
   if (!value) throw new PostbackValidationError('Status da conversão ausente.')
   const normalized = normalizeWord(value).replace(/[\s-]+/g, '_')
-  if (['accepted', 'approved', 'approve', 'allowed', 'aceito', 'aprovado', 'paid', 'pago', 'sale', '1'].includes(normalized)) return 'approved'
+  if (['paid', 'pago', 'settled', 'liquidado'].includes(normalized)) return 'paid'
+  if (['accepted', 'approved', 'approve', 'allowed', 'aceito', 'aprovado', 'sale', '1'].includes(normalized)) return 'approved'
   if (['created', 'pending', 'processing', 'in_processing', 'hold', 'em_processamento', '0'].includes(normalized)) return 'pending'
   if (['rejected', 'declined', 'denied', 'recusado', 'rejeitado', '2'].includes(normalized)) return 'rejected'
   if (['cancelled', 'canceled', 'cancelado', 'reversed', 'estornado', '3'].includes(normalized)) return 'cancelled'
@@ -142,13 +143,13 @@ export async function normalizeActionpayPostback(payload: FlatPostbackPayload): 
   const currencyValue = first(payload, ['currency', 'currency_code', 'currencycode'])
   const currency = currencyValue ? currencyValue.toUpperCase() : null
   if (currency && !/^[A-Z]{3}$/.test(currency)) throw new PostbackValidationError('Moeda inválida.')
-  if (status === 'approved' && (commission === null || currency === null)) {
-    throw new PostbackValidationError('Conversão aprovada exige comissão e moeda.')
+  if (['approved', 'paid'].includes(status) && (commission === null || currency === null)) {
+    throw new PostbackValidationError('Conversão aprovada ou paga exige comissão e moeda.')
   }
 
   const eventAt = parseDate(first(payload, ['event_at', 'event_date', 'action_date', 'created_at', 'date', 'timestamp']))
-  const convertedAt = status === 'approved'
-    ? parseDate(first(payload, ['converted_at', 'conversion_date', 'approved_at', 'action_date', 'date', 'timestamp']))
+  const convertedAt = ['approved', 'paid'].includes(status)
+    ? parseDate(first(payload, ['paid_at', 'payment_date', 'converted_at', 'conversion_date', 'approved_at', 'action_date', 'date', 'timestamp']))
     : null
 
   const normalizedWithoutKey = {

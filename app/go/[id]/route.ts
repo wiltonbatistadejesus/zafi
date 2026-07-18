@@ -31,10 +31,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const sessionId = query.get('sid') ?? ''
   const visitorId = query.get('vid') ?? ''
   const consentValue = query.get('consent')
+  const recommendationRunId = query.get('rid') ?? ''
+  const recommendationDecisionId = query.get('did') ?? ''
   const consent: AnalyticsConsent = consentValue === 'granted' || consentValue === 'denied' ? consentValue : 'unknown'
 
-  if (!UUID.test(sessionId) || !UUID.test(visitorId)) {
-    return NextResponse.json({ error: 'Contexto de telemetria ausente. Volte à Zafi e tente novamente.' }, { status: 400 })
+  if (!UUID.test(sessionId) || !UUID.test(visitorId) || !UUID.test(recommendationRunId) || !UUID.test(recommendationDecisionId)) {
+    return NextResponse.json({ error: 'Contexto de atribuição ausente. Volte à Zafi e tente novamente.' }, { status: 400 })
   }
 
   const sourcePage = (query.get('page') || request.headers.get('referer') || '/').slice(0, 2048)
@@ -74,10 +76,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       visitorId,
       sourcePage,
       occurredAt: base.occurredAt,
+      recommendationRunId,
+      recommendationDecisionId,
     })
     console.log(JSON.stringify({
       level: 'info', message: 'partner_click_done', route: '/go/[id]', requestId,
-      partnerId: partner.id, affiliateClickId, eventId: persisted.partnerEventId, ms: Date.now() - startedAt,
+      partnerId: partner.id, affiliateClickId, eventId: persisted.partnerEventId,
+      recommendationRunId, recommendationDecisionId, ms: Date.now() - startedAt,
     }))
 
     const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || ''

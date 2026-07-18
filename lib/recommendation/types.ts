@@ -20,6 +20,7 @@ export type AppliedRecommendationRule = {
 }
 
 export type RecommendationDecision = {
+  decisionId: string
   id: string
   partnerId: string
   name: string
@@ -42,6 +43,14 @@ export type RecommendationDecision = {
   recommendationReasons?: RecommendationReason[]
   exclusionReasons?: RecommendationReason[]
   appliedRules: AppliedRecommendationRule[]
+}
+
+export type RecommendationImpressionReceipt = {
+  impressionId: string
+  runId: string
+  decisionCount: number
+  duplicate: boolean
+  persistedAt: string
 }
 
 export type RecommendationResult = {

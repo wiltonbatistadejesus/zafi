@@ -6,7 +6,7 @@ import Card from '@/components/Card'
 import Logo from '@/components/Logo'
 import { Debt, DEBT_TYPE_LABELS } from '@/lib/types'
 import { buildExitPlan, findMostDangerousDebt, formatBRL } from '@/lib/calculations'
-import { requestRecommendations } from '@/lib/recommendation/client'
+import { recordVisibleRecommendations, requestRecommendations } from '@/lib/recommendation/client'
 import { buildPartnerTrackingUrl } from '@/lib/telemetry/client'
 import type { RecommendationDecision, RecommendationResult } from '@/lib/recommendation/types'
 
@@ -27,9 +27,9 @@ const TAG_CLASSES: Record<RecommendationDecision['tagTone'], string> = {
   slate: 'bg-slate-100 text-slate-800',
 }
 
-function PartnerCard({ partner }: { partner: RecommendationDecision }) {
+function PartnerCard({ partner, runId }: { partner: RecommendationDecision; runId: string }) {
   const recommended = partner.featured
-  const url = `/go/${partner.partnerId}`
+  const url = `/go/${partner.partnerId}?rid=${encodeURIComponent(runId)}&did=${encodeURIComponent(partner.decisionId)}`
   return (
     <article className={`rounded-2xl border bg-white p-5 shadow-sm ${recommended ? 'border-blue-300 ring-1 ring-blue-100' : 'border-zafi-border'}`}>
       <div className="flex gap-3">
@@ -94,6 +94,10 @@ export default function Solutions({ name, debts, totalDebt, estimatedMonths }: S
   useEffect(() => {
     const controller = new AbortController()
     requestRecommendations('/', controller.signal)
+      .then(async (result) => {
+        if (result.recommendations.length) await recordVisibleRecommendations(result, controller.signal)
+        return result
+      })
       .then(setRecommendation)
       .catch((error) => {
         if (error instanceof DOMException && error.name === 'AbortError') return
@@ -198,14 +202,14 @@ export default function Solutions({ name, debts, totalDebt, estimatedMonths }: S
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-zafi-blue">Seu primeiro movimento</p>
             <h2 id="acordos" className="mt-1 text-xl font-extrabold text-zafi-text">Comece pela negociação</h2>
             <p className="mt-1 text-sm leading-relaxed text-zafi-secondary">Priorize acordos com o credor. É a forma mais direta de tentar reduzir o saldo e os juros.</p>
-            <div className="mt-4 space-y-3">{agreements.map((partner) => <PartnerCard key={partner.id} partner={partner} />)}</div>
+            <div className="mt-4 space-y-3">{agreements.map((partner) => <PartnerCard key={partner.id} partner={partner} runId={recommendation.runId} />)}</div>
           </section>
 
           <section aria-labelledby="credito" className="mb-8 border-t border-zafi-border pt-7">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-violet-700">Somente se fizer sentido</p>
             <h2 id="credito" className="mt-1 text-xl font-extrabold text-zafi-text">Crédito para trocar juros caros</h2>
             <p className="mt-1 text-sm leading-relaxed text-zafi-secondary">Considere apenas se o custo total for menor que o da dívida atual. Nunca contrate sem comparar.</p>
-            <div className="mt-4 space-y-3">{credit.map((partner) => <PartnerCard key={partner.id} partner={partner} />)}</div>
+            <div className="mt-4 space-y-3">{credit.map((partner) => <PartnerCard key={partner.id} partner={partner} runId={recommendation.runId} />)}</div>
           </section>
         </>
       )}

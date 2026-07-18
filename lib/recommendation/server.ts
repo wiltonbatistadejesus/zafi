@@ -19,3 +19,26 @@ export async function runRecommendation(input: { visitorId: string; sessionId: s
   if (error || !data) throw new Error(`Recommendation engine failed: ${error?.message ?? 'empty response'}`)
   return data as RecommendationResult
 }
+
+export async function recordRecommendationImpressions(input: {
+  runId: string
+  impressionId: string
+  decisionIds: string[]
+  visitorId: string
+  sessionId: string
+  sourcePage: string
+  occurredAt: string
+}) {
+  const { data, error } = await getSupabaseClient().rpc('recommendation_record_impressions', {
+    p_secret: secret(),
+    p_run_id: input.runId,
+    p_impression_id: input.impressionId,
+    p_decision_ids: input.decisionIds,
+    p_visitor_id: input.visitorId,
+    p_session_id: input.sessionId,
+    p_source_page: input.sourcePage,
+    p_occurred_at: input.occurredAt,
+  })
+  if (error || !data) throw new Error(`Recommendation impression persistence failed: ${error?.message ?? 'empty response'}`)
+  return data
+}

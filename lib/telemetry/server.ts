@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase'
-import type { AnalyticsConsent, CockpitSnapshot, TelemetryEventType } from './types'
+import type { AnalyticsConsent, AttributionCockpitSnapshot, CockpitSnapshot, TelemetryEventType } from './types'
 import type { NormalizedActionpayPostback, FlatPostbackPayload } from '@/lib/actionpay/postback'
 import type { PartnerDefinition } from '@/lib/partners'
 
@@ -72,6 +72,8 @@ export async function recordAffiliateClick(input: {
   visitorId: string
   sourcePage: string
   occurredAt: string
+  recommendationRunId: string
+  recommendationDecisionId: string
 }) {
   const { data, error } = await getSupabaseClient().rpc('affiliate_record_click', {
     p_secret: secret(),
@@ -86,6 +88,8 @@ export async function recordAffiliateClick(input: {
     p_visitor_id: input.visitorId,
     p_source_page: input.sourcePage,
     p_occurred_at: input.occurredAt,
+    p_recommendation_run_id: input.recommendationRunId,
+    p_recommendation_decision_id: input.recommendationDecisionId,
   })
   if (error || !data) throw new Error(`Affiliate click persistence failed: ${error?.message ?? 'empty response'}`)
   return data as string
@@ -181,4 +185,13 @@ export async function getCockpitSnapshot(recentLimit = 30): Promise<CockpitSnaps
   })
   if (error || !data) throw new Error(`Cockpit snapshot failed: ${error?.message ?? 'empty response'}`)
   return data as CockpitSnapshot
+}
+
+export async function getAttributionCockpitSnapshot(recentLimit = 20): Promise<AttributionCockpitSnapshot> {
+  const { data, error } = await getSupabaseClient().rpc('recommendation_attribution_cockpit_snapshot', {
+    p_secret: secret(),
+    p_recent_limit: recentLimit,
+  })
+  if (error || !data) throw new Error(`Attribution cockpit snapshot failed: ${error?.message ?? 'empty response'}`)
+  return data as AttributionCockpitSnapshot
 }

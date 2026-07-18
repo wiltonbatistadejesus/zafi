@@ -88,6 +88,56 @@ export type CockpitSnapshot = {
 
 export type RevenueAmount = { currency: string; value: number | string }
 
+export type AttributionCockpitSnapshot = {
+  generated_at: string
+  impressions_today: number
+  impressions_total: number
+  clicks_today: number
+  clicks_total: number
+  conversions_today: number
+  conversions_total: number
+  affiliate_clicks_total: number
+  affiliate_conversions_total: number
+  unattributed_conversions_total: number
+  created_count: number
+  approved_count: number
+  paid_count: number
+  revenue_created: RevenueAmount[]
+  revenue_approved: RevenueAmount[]
+  revenue_paid: RevenueAmount[]
+  top_decisions: Array<{
+    decision_id: string
+    run_id: string
+    product_slug: string
+    product_name: string
+    partner_slug: string
+    partner_name: string
+    impressions: number
+    clicks: number
+    conversions: number
+    currency: string | null
+    revenue_approved: number | string
+    revenue_paid: number | string
+  }>
+  recent_events: Array<{
+    id: string
+    event_type: 'impression' | 'click' | 'conversion'
+    run_id: string
+    decision_id: string
+    source_id: string
+    financial_state: 'none' | 'created' | 'approved' | 'paid' | 'reversed'
+    amount: number | string | null
+    currency: string | null
+    occurred_at: string
+    created_at: string
+    product_slug: string
+    product_name: string
+    partner_slug: string
+    partner_name: string
+    transaction_id: string | null
+  }>
+}
+
 export type AffiliateConversion = {
   id: string
   transaction_id: string
@@ -95,7 +145,7 @@ export type AffiliateConversion = {
   partner_name: string
   campaign_id: string
   campaign_name: string
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled'
+  status: 'pending' | 'approved' | 'paid' | 'rejected' | 'cancelled'
   commission: number | string | null
   currency: string | null
   original_click_id: string | null
