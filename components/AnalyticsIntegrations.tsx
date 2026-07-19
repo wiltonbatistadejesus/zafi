@@ -62,7 +62,9 @@ export default function AnalyticsIntegrations() {
       __zafiGaLoaded?: boolean
     }
     gaWindow.dataLayer = gaWindow.dataLayer || []
-    gaWindow.gtag = gaWindow.gtag || ((...args: unknown[]) => gaWindow.dataLayer?.push(args))
+    gaWindow.gtag = gaWindow.gtag || function () {
+      gaWindow.dataLayer?.push(arguments)
+    }
     gaWindow.__zafiGaLoaded = false
     gaWindow.gtag('js', new Date())
     gaWindow.gtag('config', gaId, { anonymize_ip: true })
