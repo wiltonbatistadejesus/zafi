@@ -53,6 +53,18 @@ export default function AnalyticsIntegrations() {
     setReady(true)
   }, [trackPageViewOnce])
 
+  useEffect(() => {
+    if (consent !== 'granted' || !gaId || isInternalPage) return
+    const gaWindow = window as typeof window & {
+      dataLayer?: unknown[]
+      gtag?: (...args: unknown[]) => void
+    }
+    gaWindow.dataLayer = gaWindow.dataLayer || []
+    gaWindow.gtag = gaWindow.gtag || ((...args: unknown[]) => gaWindow.dataLayer?.push(args))
+    gaWindow.gtag('js', new Date())
+    gaWindow.gtag('config', gaId, { anonymize_ip: true })
+  }, [consent, gaId, isInternalPage])
+
   async function chooseConsent(value: Exclude<Consent, null>) {
     window.localStorage.setItem(CONSENT_KEY, value)
     setConsent(value)
@@ -71,12 +83,7 @@ export default function AnalyticsIntegrations() {
   return (
     <>
       {consent === 'granted' && gaId && (
-        <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
-          <Script id="zafi-ga4" strategy="afterInteractive">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','${gaId}',{anonymize_ip:true});`}
-          </Script>
-        </>
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
       )}
 
       {consent === 'granted' && clarityId && (

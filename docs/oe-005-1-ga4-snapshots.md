@@ -28,12 +28,15 @@ Esse comportamento não comprovava uma resposta HTTP 204 observada. O callback i
 
 Além disso, os eventos comuns não recebiam `debug_mode`, razão pela qual não eram elegíveis para aparecer no DebugView durante um teste controlado.
 
+O teste em produção também comprovou que o arquivo `gtag.js` do fluxo oficial era baixado, mas `window.gtag` não era inicializado. O bloco inline renderizado após a mudança dinâmica do consentimento permanecia no DOM sem executar. Dessa forma, a persistência da Zafi funcionava enquanto o envio ao Google não era iniciado.
+
 ## Correção aplicada
 
 - O ID oficial foi configurado em Production, Preview e Development na Vercel.
 - O ambiente local de desenvolvimento utiliza o mesmo ID público.
 - Cada evento informa explicitamente `send_to: G-ZY4276HJZT`.
 - O modo de depuração somente é ativado com `zafi_ga_debug=1`.
+- A inicialização de `dataLayer` e `window.gtag` ocorre no ciclo React imediatamente após o consentimento, sem depender de um script inline inserido dinamicamente.
 - O parâmetro interno de sessão permanece como `zafi_session_id`, sem colidir com o `session_id` numérico do GA4.
 - A aplicação verifica a presença e o formato de `client_id` e da sessão GA4 sem persistir seus valores.
 - O status técnico passou de `accepted` para `sent`.
