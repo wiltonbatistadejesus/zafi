@@ -67,7 +67,16 @@ export default function AnalyticsIntegrations() {
     }
     gaWindow.__zafiGaLoaded = false
     gaWindow.gtag('js', new Date())
-    gaWindow.gtag('config', gaId, { anonymize_ip: true })
+    gaWindow.gtag('consent', 'update', {
+      analytics_storage: 'granted',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+    })
+    gaWindow.gtag('config', gaId, {
+      anonymize_ip: true,
+      debug_mode: new URLSearchParams(window.location.search).get('zafi_ga_debug') === '1',
+    })
     setGaInitialized(true)
   }, [consent, gaId, isInternalPage])
 
