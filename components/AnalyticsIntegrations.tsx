@@ -13,6 +13,7 @@ export default function AnalyticsIntegrations() {
   const [consent, setConsent] = useState<Consent>(null)
   const [ready, setReady] = useState(false)
   const [isInternalPage, setIsInternalPage] = useState(false)
+  const [gaInitialized, setGaInitialized] = useState(false)
   const rawGaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() ?? ''
   const rawClarityId = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID?.trim() ?? ''
   const gaId = /^G-[A-Z0-9]+$/.test(rawGaId) ? rawGaId : ''
@@ -58,12 +59,20 @@ export default function AnalyticsIntegrations() {
     const gaWindow = window as typeof window & {
       dataLayer?: unknown[]
       gtag?: (...args: unknown[]) => void
+      __zafiGaLoaded?: boolean
     }
     gaWindow.dataLayer = gaWindow.dataLayer || []
     gaWindow.gtag = gaWindow.gtag || ((...args: unknown[]) => gaWindow.dataLayer?.push(args))
+    gaWindow.__zafiGaLoaded = false
     gaWindow.gtag('js', new Date())
     gaWindow.gtag('config', gaId, { anonymize_ip: true })
+    setGaInitialized(true)
   }, [consent, gaId, isInternalPage])
+
+  function markGaLoaded() {
+    const gaWindow = window as typeof window & { __zafiGaLoaded?: boolean }
+    gaWindow.__zafiGaLoaded = true
+  }
 
   async function chooseConsent(value: Exclude<Consent, null>) {
     window.localStorage.setItem(CONSENT_KEY, value)
@@ -82,8 +91,13 @@ export default function AnalyticsIntegrations() {
 
   return (
     <>
-      {consent === 'granted' && gaId && (
-        <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
+      {consent === 'granted' && gaId && gaInitialized && (
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+          strategy="afterInteractive"
+          onLoad={markGaLoaded}
+          onReady={markGaLoaded}
+        />
       )}
 
       {consent === 'granted' && clarityId && (

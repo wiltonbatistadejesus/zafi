@@ -103,13 +103,16 @@ async function dispatchGa4(type: string, payload: Record<string, unknown>, event
     return { status: 'skipped_no_consent', responseCode: null }
   }
 
-  const gaWindow = window as typeof window & { gtag?: (...args: unknown[]) => void }
+  const gaWindow = window as typeof window & {
+    gtag?: (...args: unknown[]) => void
+    __zafiGaLoaded?: boolean
+  }
   const started = Date.now()
-  while (!gaWindow.gtag && Date.now() - started < 3000) {
+  while ((!gaWindow.gtag || !gaWindow.__zafiGaLoaded) && Date.now() - started < 8000) {
     await new Promise((resolve) => window.setTimeout(resolve, 50))
   }
 
-  if (!gaWindow.gtag) {
+  if (!gaWindow.gtag || !gaWindow.__zafiGaLoaded) {
     await auditGa4(eventId, 'not_configured', null, 'A tag GA4 não ficou disponível no navegador.')
     return { status: 'not_configured', responseCode: null }
   }
