@@ -1,9 +1,9 @@
 # Campanha — Qual dívida pagar primeiro?
 
 - ID: `baseline_100-20260719-qual-divida-pagar-primeiro`
-- Versão: 1
+- Versão: 2
 - Criada em: 19/07/2026
-- Status: `blocked_commercial`
+- Status: `acquisition_ready`
 - Aprovação humana: pendente
 - Publicação: não realizada
 - Investimento: R$ 0,00
@@ -18,11 +18,17 @@ Hipótese: uma orientação simples sobre priorização pode levar usuários qua
 
 O Search Console registrou 11 impressões e 1 clique entre 13 e 16 de julho de 2026, com sinais relacionados a renegociação Itaú, Santander e dívidas. A amostra é insuficiente para declarar vencedor.
 
+## Gate de aquisição
+
+Aprovado para submissão à autorização humana. A peça é educativa, usa página própria da Zafi, possui UTM exclusiva por canal, não promove parceiro ou oferta específica e não promete resultado financeiro.
+
+O status `acquisition_ready` não significa que a publicação já foi aprovada. Roteiro, legenda, perfil, canal, data, horário e link ainda precisam de confirmação humana.
+
 ## Gate comercial
 
-Reprovado em 19/07/2026. As seis ofertas tecnicamente ativas e clicáveis estavam com remuneração pendente, sem valor, percentual, moeda ou confirmação comercial.
+Não aprovado. As seis ofertas tecnicamente ativas e clicáveis estavam com remuneração pendente, sem valor, percentual, moeda ou confirmação comercial.
 
-Nenhuma publicação está autorizada até nova auditoria aprovar ao menos uma oferta remunerada.
+Esta campanha não promoverá oferta, parceiro ou remuneração específica. Conversão e receita não fazem parte do critério de sucesso deste ciclo.
 
 ## Roteiro — 20 a 30 segundos
 
@@ -72,12 +78,22 @@ Não existe aprovação, desconto ou aumento de score garantido.
 
 ## Aprovação necessária
 
-Uma pessoa autorizada deverá confirmar gate comercial, roteiro, legenda, canal, perfil, data, horário e link correspondente ao canal.
+Uma pessoa autorizada deverá confirmar roteiro, legenda, canal, perfil, data, horário e link correspondente ao canal. O gate comercial não é requisito para esta peça educativa.
 
 ## Medição
 
 Ainda não iniciada. Nenhum alcance, sessão, análise, clique, conversão ou receita foi atribuído a esta campanha.
 
+## Metas das primeiras 72 horas
+
+- 20 visitantes válidos;
+- pelo menos 5 análises iniciadas;
+- pelo menos 2 análises concluídas;
+- identificação do principal abandono;
+- cobertura de atribuição superior a 90%.
+
+A ausência de conversão ou receita não reprova este ciclo.
+
 ## Próximo passo
 
-Obter e registrar no Atlas a evidência oficial de remuneração de ao menos uma campanha, sem alterar ranking, pesos ou elegibilidade.
+Encaminhar a peça para aprovação humana. Não publicar antes da confirmação explícita de roteiro, legenda, perfil, canal, data, horário e UTM.

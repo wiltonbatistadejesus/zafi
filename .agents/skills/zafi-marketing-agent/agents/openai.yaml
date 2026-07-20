@@ -1,4 +1,4 @@
 interface:
   display_name: "Agente de Marketing Zafi"
   short_description: "Campanhas Zafi supervisionadas e mensuráveis"
-  default_prompt: "Use $zafi-marketing-agent para criar a campanha diária supervisionada da Zafi a partir de dados reais."
+  default_prompt: "Use $zafi-marketing-agent para criar a campanha diária supervisionada da Zafi, separando aquisição e monetização com dados reais."

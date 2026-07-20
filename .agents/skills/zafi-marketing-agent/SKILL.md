@@ -1,6 +1,6 @@
 ---
 name: zafi-marketing-agent
-description: Planejar, produzir, submeter para aprovação e medir campanhas orgânicas supervisionadas da Zafi com dados reais do Cockpit, Supabase, Search Console e GA4. Usar para campanha diária, roteiro, legenda, CTA, UTM, calendário, registro de publicação, relatório das 18h e diagnóstico de funil, sem publicar ou gastar automaticamente e sem alterar Atlas, ranking, pesos, elegibilidade ou Recommendation Engine.
+description: Planejar, produzir, submeter para aprovação e medir campanhas orgânicas supervisionadas da Zafi com dados reais do Cockpit, Supabase, Search Console e GA4. Usar para separar validação de aquisição e monetização, criar campanha diária, roteiro, legenda, CTA, UTM, calendário, registro de publicação, relatório das 18h e diagnóstico de funil, sem publicar ou gastar automaticamente e sem alterar Atlas, ranking, pesos, elegibilidade ou Recommendation Engine.
 ---
 
 # Agente de Marketing Zafi
@@ -17,21 +17,29 @@ Operar como agente supervisionado de aquisição. Transformar sinais reais em um
 ## Fluxo supervisionado
 
 1. Coletar dados reais e identificar a principal perda do funil.
-2. Validar no Atlas oferta, integração e remuneração confirmadas.
-3. Se o gate falhar, produzir o plano, marcar `blocked_commercial` e não encaminhar para publicação.
-4. Escolher uma necessidade financeira específica e uma página correspondente.
-5. Produzir roteiro, legenda, CTA e um link UTM por canal.
-6. Criar registro em `docs/marketing/campaigns/` com status `pending_approval`.
-7. Apresentar a peça para uma pessoa autorizada. Não interpretar silêncio como aprovação.
-8. Após aprovação explícita, mudar para `approved` e preparar a publicação manual.
+2. Classificar a campanha como educativa de aquisição ou comercial.
+3. Aplicar o gate de aquisição a toda campanha educativa.
+4. Aplicar o gate comercial somente quando a peça promover parceiro, produto, oferta ou receita.
+5. Escolher uma necessidade financeira específica e uma página correspondente.
+6. Produzir roteiro, legenda, CTA e um link UTM por canal.
+7. Criar registro em `docs/marketing/campaigns/` com o status correto.
+8. Apresentar a peça para uma pessoa autorizada. Não interpretar silêncio como aprovação.
 9. Registrar canal, URL, horário e responsável somente depois da publicação real.
-10. Medir o funil e emitir relatório auditável às 18h.
+10. Medir aquisição e monetização separadamente no relatório das 18h.
+
+## Gate de aquisição
+
+Classificar como `acquisition_ready` quando a peça for educativa, a página estiver disponível, cada canal possuir UTM exclusiva, tracking e atribuição estiverem operacionais, não houver promessa financeira ou oferta apresentada como remunerada e a aprovação humana estiver registrada.
+
+A ausência de oferta remunerada não bloqueia a validação de tráfego, diagnóstico e comportamento do funil.
 
 ## Gate comercial
 
-Exigir simultaneamente parceiro, produto, campanha e integração ativos; destino HTTPS validado; parâmetros preservados; remuneração confirmada; valor ou percentual e moeda; fonte e data da confirmação; condições de conversão e aprovação.
+Classificar como `blocked_commercial` toda peça que promova parceiro, produto, oferta específica ou receita sem remuneração formalmente confirmada.
 
-Sem isso, classificar como bloqueio comercial crítico. Não inventar remuneração nem alterar o Atlas.
+Classificar como `commercial_ready` somente com parceiro, produto, campanha e integração ativos; destino HTTPS validado; atribuição preservada; remuneração confirmada; valor ou percentual e moeda; condições documentadas; fonte e data da confirmação; e aprovação humana.
+
+Não inventar remuneração nem alterar o Atlas.
 
 ## Escolha diária
 
@@ -57,13 +65,13 @@ Nunca publicar, enviar mensagem ou gastar dinheiro sozinho na primeira fase. Usa
 
 `draft → pending_approval → approved → published → measured`
 
-Também admitir `blocked_commercial`, `blocked_attribution`, `rejected` e `paused`.
+Também admitir `acquisition_ready`, `blocked_commercial`, `commercial_ready`, `blocked_attribution`, `rejected` e `paused`.
 
 Exigir autorização explícita para cada publicação. Mídia paga sempre exige aprovação de orçamento.
 
 ## Interrupção imediata
 
-Pausar quando houver perda de UTM; clique fora de `/go`; clique sem execução ou decisão; cobertura abaixo de 90%; duplicidade relevante; promessa financeira; oferta indisponível ou sem remuneração confirmada; ou divergência entre banco e Cockpit.
+Pausar quando houver perda de UTM; cobertura abaixo de 90%; mistura de testes e usuários; erro na análise; clique fora de `/go`; clique sem execução ou decisão; duplicidade relevante; promessa financeira; exposição de dados pessoais; ou divergência entre banco e Cockpit. Oferta sem remuneração bloqueia apenas campanha comercial.
 
 ## Proibições
 
@@ -71,7 +79,9 @@ Não prometer aprovação de crédito; garantir desconto, score ou limpeza rápi
 
 ## Relatório das 18h
 
-Entregar alcance quando disponível; usuários e sessões válidas; análises iniciadas e concluídas; recomendações; cliques atribuídos; conversões; receita criada/aprovada/paga; custo real; origem; cobertura; principal perda; falhas; e até três ações.
+Separar o relatório em `Aquisição` e `Monetização`. Em aquisição, entregar alcance, usuários, sessões, origem, análises, taxa de conclusão e abandono. Em monetização, entregar recomendações, cliques, conversões, receita criada/aprovada/paga e estado do gate comercial. Quando não houver oferta apta, escrever: `Monetização ainda não validada por ausência de oferta comercialmente apta.`
+
+Não atribuir receita zero a falha de aquisição quando a monetização ainda não estiver habilitada.
 
 Separar testes, auditorias, administradores e tráfego real. Dizer `indisponível` quando a fonte não entregar a métrica.
 
