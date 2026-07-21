@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-07-21T12:00:00-03:00",
+  "assets": [
+    {
+      "asset_id": "calendar-organic-90d-20260721-v1",
+      "theme_id": "organic-acquisition-factory",
+      "brief_id": "oe007-calendar-20260721",
+      "asset_type": "editorial_calendar",
+      "version": 1,
+      "status": "draft",
+      "path": "docs/marketing/calendar/editorial-90-days-2026-07-21.md",
+      "parent_asset_id": null,
+      "source_ids": [
+        "oe-007"
+      ],
+      "approval_id": null,
+      "publication_id": null,
+      "created_at": "2026-07-21T12:00:00-03:00",
+      "updated_at": "2026-07-21T12:00:00-03:00"
+    },
+    {
+      "asset_id": "campaign-qual-divida-pagar-primeiro-v2",
+      "theme_id": "qual-divida-pagar-primeiro",
+      "brief_id": "baseline_100-20260719-qual-divida-pagar-primeiro",
+      "asset_type": "campaign",
+      "version": 2,
+      "status": "pending_approval",
+      "path": "docs/marketing/campaigns/2026-07-19-qual-divida-pagar-primeiro.md",
+      "parent_asset_id": null,
+      "source_ids": [
+        "oe-006b",
+        "oe-006c"
+      ],
+      "approval_id": null,
+      "publication_id": null,
+      "created_at": "2026-07-19T04:20:00-03:00",
+      "updated_at": "2026-07-20T10:00:00-03:00"
+    },
+    {
+      "asset_id": "report-editor-chief-2026-w30-v1",
+      "theme_id": "qual-divida-pagar-primeiro",
+      "brief_id": "organic-2026-W30",
+      "asset_type": "editorial_cycle_report",
+      "version": 1,
+      "status": "editorial_review",
+      "path": "docs/marketing/reports/editor-chief-cycle-2026-W30.md",
+      "parent_asset_id": "campaign-qual-divida-pagar-primeiro-v2",
+      "source_ids": [
+        "oe-006c",
+        "oe-007"
+      ],
+      "approval_id": null,
+      "publication_id": null,
+      "created_at": "2026-07-21T12:00:00-03:00",
+      "updated_at": "2026-07-21T12:00:00-03:00"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Editor Chief Agent"
+  short_description: "Orquestração governada da fábrica orgânica"
+  default_prompt: "Use $editor-chief-agent para coordenar o próximo ciclo draft da Fábrica de Aquisição Orgânica Zafi."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Landing Optimizer Agent"
+  short_description: "Auditorias priorizadas de páginas Zafi"
+  default_prompt: "Use $landing-optimizer-agent para auditar uma página Zafi e gerar melhorias priorizadas sem alterar código."

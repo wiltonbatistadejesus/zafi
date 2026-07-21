@@ -1,0 +1,4 @@
+interface:
+  display_name: "SEO Intelligence Agent"
+  short_description: "Oportunidades SEO verificáveis para a Zafi"
+  default_prompt: "Use $seo-intelligence-agent para preparar o briefing SEO diário da Zafi com dados reais."

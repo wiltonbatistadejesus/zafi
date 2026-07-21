@@ -1,0 +1,4 @@
+interface:
+  display_name: "Acquisition Analytics Agent"
+  short_description: "Aquisição e monetização auditáveis"
+  default_prompt: "Use $acquisition-analytics-agent para gerar o relatório diário auditável da Zafi."

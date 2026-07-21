@@ -7,6 +7,12 @@ description: Planejar, produzir, submeter para aprovação e medir campanhas org
 
 Operar como agente supervisionado de aquisição. Transformar sinais reais em uma campanha mensurável e auditável, preservando a confiança de pessoas endividadas.
 
+## Integração OE-007
+
+Receber do `$editor-chief-agent` o briefing consolidado e o manifesto de ativos. Não refazer pesquisa SEO, inteligência criativa, conteúdo, vídeo ou auditoria de landing page quando o especialista correspondente já entregou um ativo aceito.
+
+Manter como responsabilidades exclusivas deste agente: validar os gates OE-006C, finalizar UTMs por canal, encaminhar para aprovação humana, registrar publicação real e solicitar medição ao `$acquisition-analytics-agent`.
+
 ## Fontes e precedência
 
 1. Usar o banco da Zafi e o CEO Cockpit como fonte oficial de eventos, atribuição e receita.

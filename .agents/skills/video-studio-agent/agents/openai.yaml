@@ -1,0 +1,4 @@
+interface:
+  display_name: "Video Studio Agent"
+  short_description: "Pacotes de vídeo Zafi em três durações"
+  default_prompt: "Use $video-studio-agent para preparar um pacote de vídeo Zafi em draft nas versões de 15, 30 e 60 segundos."

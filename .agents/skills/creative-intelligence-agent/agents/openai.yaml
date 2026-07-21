@@ -1,0 +1,4 @@
+interface:
+  display_name: "Creative Intelligence Agent"
+  short_description: "Tendências financeiras com fonte e data"
+  default_prompt: "Use $creative-intelligence-agent para criar uma lista priorizada de temas verificáveis para a Zafi."

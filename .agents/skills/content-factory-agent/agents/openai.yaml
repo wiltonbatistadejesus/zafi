@@ -1,0 +1,4 @@
+interface:
+  display_name: "Content Factory Agent"
+  short_description: "Um tema Zafi em múltiplos formatos draft"
+  default_prompt: "Use $content-factory-agent para transformar o briefing aprovado em ativos multiformato versionados."
