@@ -82,14 +82,14 @@ Valores consultados nas páginas oficiais em 28/07/2026:
 
 | Ferramenta | Custo de referência |
 |---|---|
-| HeyGen Creator | US$ 29 por mês; 1080p, sem marca d’água e cinco minutos de Avatar IV |
-| HeyGen API Avatar IV | aproximadamente US$ 0,05 a US$ 0,0667 por segundo, conforme tipo e resolução |
-| ElevenLabs Starter | US$ 6 por mês, aproximadamente 30 minutos incluídos |
-| ElevenLabs Creator | US$ 22 por mês, aproximadamente 121 minutos incluídos |
-| Runway Standard | US$ 15 por mês, ou US$ 12 por mês no plano anual; 625 créditos |
-| Runway Pro | US$ 35 por mês, ou US$ 28 por mês no plano anual; 2.250 créditos |
-| Descript Creator | US$ 15 por mês, ou US$ 12 por mês no plano anual |
-| Descript Pro | US$ 30 por mês, ou US$ 24 por mês no plano anual |
+| [HeyGen Creator](https://www.heygen.com/pricing/) | US$ 29 por mês; 1080p, sem marca d’água e cinco minutos de Avatar IV |
+| [HeyGen API Avatar IV](https://developers.heygen.com/docs/pricing) | aproximadamente US$ 0,05 a US$ 0,0667 por segundo, conforme tipo e resolução |
+| [ElevenLabs Starter](https://elevenlabs.io/text-to-speech) | US$ 6 por mês, aproximadamente 30 minutos incluídos |
+| [ElevenLabs Creator](https://elevenlabs.io/text-to-speech) | US$ 22 por mês, aproximadamente 121 minutos incluídos |
+| [Runway Standard](https://runwayml.com/pricing) | US$ 15 por mês, ou US$ 12 por mês no plano anual; 625 créditos |
+| [Runway Pro](https://runwayml.com/pricing) | US$ 35 por mês, ou US$ 28 por mês no plano anual; 2.250 créditos |
+| [Descript Creator](https://www.descript.com/price) | US$ 15 por mês, ou US$ 12 por mês no plano anual |
+| [Descript Pro](https://www.descript.com/price) | US$ 30 por mês, ou US$ 24 por mês no plano anual |
 
 O custo mínimo mensal da alternativa totalmente sintética recomendada começa em aproximadamente US$ 50 por mês com HeyGen Creator, ElevenLabs Starter e Runway Standard.
 
