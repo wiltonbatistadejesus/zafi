@@ -1,0 +1,4 @@
+interface:
+  display_name: "Content Strategist"
+  short_description: "Prioritize the strongest content opportunities"
+  default_prompt: "Use $content-strategist-agent para priorizar temas Zafi por busca, retenção, valor comercial e marca."

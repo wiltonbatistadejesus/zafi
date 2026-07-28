@@ -30,6 +30,11 @@ Coordenar a OE-007 sem duplicar o Agente de Marketing existente.
 - `$creative-intelligence-agent`: tendências e dúvidas verificadas.
 - `$content-factory-agent`: derivados textuais do tema.
 - `$video-studio-agent`: pacotes de vídeo.
+- `$trend-hunter-agent` e `$content-strategist-agent`: pesquisa e priorização OE-008.
+- `$script-writer-agent` e `$avatar-director-agent`: texto e direção.
+- `$video-producer-agent` e `$thumbnail-producer-agent`: preview e laboratório criativo.
+- `$quality-reviewer-agent` e `$compliance-reviewer-agent`: gates de qualidade e segurança.
+- `$ceo-review-agent`: decisão humana sem publicação.
 - `$landing-optimizer-agent`: backlog de página, sem alteração.
 - `$acquisition-analytics-agent`: baseline, resultado e aprendizado.
 - `$zafi-marketing-agent`: aprovação, UTMs finais, registro de publicação e relatório.

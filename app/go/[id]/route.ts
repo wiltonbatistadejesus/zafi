@@ -41,6 +41,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
   const sourcePage = (query.get('page') || request.headers.get('referer') || '/').slice(0, 2048)
   const source = (query.get('source') || 'direct').slice(0, 200)
+  const occurredAt = new Date()
+  const localParts = Object.fromEntries(new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).formatToParts(occurredAt).map((part) => [part.type, part.value]))
   const payload = {
     partner_id: partner.id,
     partner_name: partner.name,
@@ -50,15 +52,28 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     affiliate_click_id: affiliateClickId,
     destination_url: destination,
     traffic_campaign: (query.get('campaign') || '').slice(0, 200),
+    campaign: {
+      utm_source: source,
+      utm_medium: (query.get('medium') || '').slice(0, 200),
+      utm_campaign: (query.get('campaign') || '').slice(0, 200),
+      utm_content: (query.get('content') || '').slice(0, 200),
+    },
+    channel: (query.get('medium') || source || 'direct').slice(0, 200),
+    event_time: {
+      timezone: 'America/Sao_Paulo',
+      local_date: [localParts.year, localParts.month, localParts.day].join('-'),
+      local_time: [localParts.hour, localParts.minute, localParts.second].join(':'),
+      weekday: localParts.weekday,
+    },
   }
   const base = {
     sessionId,
     visitorId,
-    occurredAt: new Date().toISOString(),
+    occurredAt: occurredAt.toISOString(),
     sourcePage,
     source,
     consent,
-    device: { user_agent: (request.headers.get('user-agent') || '').slice(0, 500) },
+    device: { user_agent: (request.headers.get('user-agent') || '').slice(0, 500), timezone: 'America/Sao_Paulo' },
     payload,
     schemaVersion: 1,
     requestId,

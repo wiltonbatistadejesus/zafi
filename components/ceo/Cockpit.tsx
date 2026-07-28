@@ -80,6 +80,8 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         </div>
         <div className={styles.topbarRight}>
           <div><strong>{today}</strong><span>Atualizado {updated}</span></div>
+          <a className={styles.logout} href="/admin/council">Conselho</a>
+          <a className={styles.logout} href="/admin/content-factory">Content Factory</a>
           <a className={styles.logout} href="/admin/telemetry">Validar dados</a>
           <form action={logout}><button className={styles.logout} type="submit" aria-label="Sair do Cockpit">Sair</button></form>
         </div>
@@ -142,6 +144,28 @@ export default function Cockpit({ data }: { data: CockpitData }) {
           <Metrics items={data.revenue} compact />
         </Card>
 
+        <Card className={styles.intelligence}>
+          <SectionHeading icon="pulse" eyebrow="OE-014 · Inteligência de eventos" title="Quando, de onde e por que cada resultado aconteceu" aside={<span className={styles.integrationBadge}><StatusDot signal={data.eventIntelligence.available ? "healthy" : "attention"} /> {data.eventIntelligence.available ? data.eventIntelligence.timezone : "Migração pendente"}</span>} />
+          <form className={styles.intelligenceFilters} method="get">
+            <label>De<input type="date" name="from" defaultValue={data.eventIntelligence.filters.from} /></label>
+            <label>Até<input type="date" name="to" defaultValue={data.eventIntelligence.filters.to} /></label>
+            <label>Canal<input name="channel" defaultValue={data.eventIntelligence.filters.channel} placeholder="Todos" /></label>
+            <label>Campanha<input name="campaign" defaultValue={data.eventIntelligence.filters.campaign} placeholder="Todas" /></label>
+            <label>Origem<input name="source" defaultValue={data.eventIntelligence.filters.source} placeholder="Todas" /></label>
+            <label>Evento<select name="event_type" defaultValue={data.eventIntelligence.filters.eventType}><option value="">Todos</option><option value="page_view">Visita</option><option value="analysis_started">Análise iniciada</option><option value="analysis_completed">Análise concluída</option><option value="partner_clicked">Clique parceiro</option><option value="affiliate_click">Clique afiliado</option></select></label>
+            <button type="submit">Aplicar filtros</button>
+          </form>
+          <Metrics items={data.eventIntelligence.comparison} compact />
+          <div className={styles.timePanels}>
+            <div><h3>Visitas por dia da semana</h3><div className={styles.timeList}>{data.eventIntelligence.weekdays.length ? data.eventIntelligence.weekdays.map((item) => <span key={item.label}><small>{item.label}</small><strong>{item.value}</strong></span>) : <p>Sem visitas no período.</p>}</div></div>
+            <div><h3>Visitas por horário</h3><div className={styles.timeList}>{data.eventIntelligence.hours.length ? data.eventIntelligence.hours.map((item) => <span key={item.label}><small>{item.label}</small><strong>{item.value}</strong></span>) : <p>Sem visitas no período.</p>}</div></div>
+          </div>
+          <div className={styles.intelligenceTables}>
+            <div><h3>Origem das visitas</h3>{data.eventIntelligence.origins.length ? data.eventIntelligence.origins.map((item) => <div className={styles.intelligenceRow} key={item.origin}><strong>{item.origin}</strong><span>{item.visitors} visitantes</span><span>{item.sessions} sessões</span><span>{item.completions} conclusões</span></div>) : <p>Sem origem registrada no período.</p>}</div>
+            <div><h3>Campanhas e canais</h3>{data.eventIntelligence.campaigns.length ? data.eventIntelligence.campaigns.map((item) => <div className={styles.intelligenceRow} key={`${item.campaign}:${item.channel}`}><strong>{item.campaign}</strong><span>{item.channel}</span><span>{item.visitors} visitantes</span><span>{item.analyses} conclusões/inícios</span><span>{item.clicks} cliques</span></div>) : <p>Sem campanha registrada no período.</p>}</div>
+          </div>
+          <div className={styles.eventAudit}><h3>Eventos auditáveis</h3>{data.eventIntelligence.recentEvents.length ? data.eventIntelligence.recentEvents.slice(0, 20).map((event) => <div className={styles.eventAuditRow} key={event.id}><span><strong>{event.event}</strong><small>{event.date} · {event.time} · {event.weekday}</small></span><span><strong>{event.origin}</strong><small>{event.channel} · {event.campaign}</small></span><span><strong>{event.device}</strong><small>Sessão {event.session.slice(0, 8)}</small></span><span><strong>{event.conversion}</strong></span></div>) : <div className={styles.ledgerEmpty}><strong>Nenhum evento no período</strong><span>Os filtros não retornaram atividade pública.</span></div>}</div>
+        </Card>
         <Card className={styles.operations}>
           <SectionHeading icon="pulse" eyebrow="OE-005 · Integridade operacional" title="Saúde da cadeia" aside={<span className={styles.integrationBadge}><StatusDot signal={data.operations.status} /> {data.operations.statusLabel}</span>} />
           <div className={styles.operationsHero}>

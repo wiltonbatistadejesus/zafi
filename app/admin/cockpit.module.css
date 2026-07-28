@@ -288,3 +288,24 @@
 @media (prefers-reduced-motion: reduce) {
   .livePulse i::after { animation: none; }
 }
+
+.intelligence { grid-column: span 12; background: radial-gradient(circle at 88% 0, rgba(21,101,255,.1), transparent 34%), #0d141d; }
+.intelligenceFilters { margin-bottom: 20px; display: grid; grid-template-columns: repeat(6, minmax(110px, 1fr)) auto; align-items: end; gap: 8px; }
+.intelligenceFilters label { display: grid; gap: 6px; color: #708096; font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
+.intelligenceFilters input, .intelligenceFilters select { min-width: 0; height: 37px; padding: 0 10px; color: #e7edf6; border: 1px solid var(--line); border-radius: 7px; background: #090f16; font: 10px Inter, sans-serif; }
+.intelligenceFilters button { height: 37px; padding: 0 16px; color: #fff; border: 0; border-radius: 7px; background: #1565ff; font-size: 9px; font-weight: 800; cursor: pointer; }
+.timePanels, .intelligenceTables { margin-top: 22px; padding-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; border-top: 1px solid var(--line); }
+.timePanels h3, .intelligenceTables h3, .eventAudit h3 { margin: 0 0 12px; color: #8d9bb0; font-size: 9px; text-transform: uppercase; letter-spacing: .12em; }
+.timeList { display: flex; flex-wrap: wrap; gap: 6px; }
+.timeList > span { min-width: 76px; padding: 9px 10px; display: grid; gap: 5px; border: 1px solid var(--line); border-radius: 7px; background: rgba(255,255,255,.015); }
+.timeList small { color: #657389; font-size: 8px; text-transform: capitalize; }
+.timeList strong { color: #eaf0f8; font: 600 15px ui-monospace, monospace; }
+.intelligenceRow { min-height: 42px; display: grid; grid-template-columns: minmax(120px, 1.3fr) repeat(4, minmax(70px, 1fr)); align-items: center; gap: 8px; border-bottom: 1px solid var(--line); color: #748298; font-size: 8px; }
+.intelligenceRow strong { color: #dce5f1; font-size: 9px; }
+.eventAudit { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); overflow-x: auto; }
+.eventAuditRow { min-width: 820px; min-height: 52px; display: grid; grid-template-columns: 1.15fr 1.1fr .75fr 1.2fr; align-items: center; gap: 14px; border-bottom: 1px solid var(--line); }
+.eventAuditRow > span { min-width: 0; display: grid; gap: 4px; color: #8390a4; font-size: 8px; }
+.eventAuditRow strong { overflow: hidden; color: #dce5f1; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.eventAuditRow small { overflow: hidden; color: #5f6d81; font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 1100px) { .intelligenceFilters { grid-template-columns: repeat(3, 1fr); } .timePanels, .intelligenceTables { grid-template-columns: 1fr; } }
+@media (max-width: 680px) { .intelligenceFilters { grid-template-columns: 1fr 1fr; } .intelligenceFilters button { grid-column: span 2; } .intelligenceRow { grid-template-columns: 1fr 1fr; padding: 9px 0; } }

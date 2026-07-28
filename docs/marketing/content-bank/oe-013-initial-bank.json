@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "oe_code": "OE-013",
+  "updated_at": "2026-07-26T19:15:00-03:00",
+  "rules": {
+    "target_topics": 10,
+    "assets_per_topic": ["short_video", "carousel", "static_image"],
+    "planned_assets_do_not_count_as_produced": true,
+    "publication_requires_human_approval": true
+  },
+  "topics": [
+    { "theme_id": "qual-divida-pagar-primeiro", "title": "Qual dívida pagar primeiro?", "status": "planned" },
+    { "theme_id": "sobra-mes-no-fim-do-salario", "title": "Por que sobra mês no fim do salário?", "status": "planned" },
+    { "theme_id": "limpar-o-nome-com-seguranca", "title": "Como começar a limpar o nome com segurança", "status": "planned" },
+    { "theme_id": "divida-cartao-cresce", "title": "Por que a dívida do cartão cresce tão rápido?", "status": "planned" },
+    { "theme_id": "negociar-divida-itau", "title": "Como se preparar para negociar dívida com o Itaú", "status": "planned" },
+    { "theme_id": "negociar-divida-santander", "title": "Como se preparar para negociar dívida com o Santander", "status": "planned" },
+    { "theme_id": "divida-prescreve", "title": "O que realmente acontece quando uma dívida prescreve?", "status": "planned" },
+    { "theme_id": "serasa-vs-spc", "title": "Qual é a diferença entre Serasa e SPC?", "status": "planned" },
+    { "theme_id": "emprestimo-negativado", "title": "Empréstimo para negativado: quando pode piorar a dívida", "status": "planned" },
+    { "theme_id": "diagnostico-financeiro", "title": "O que um diagnóstico financeiro mostra sobre suas dívidas", "status": "planned" }
+  ],
+  "counts": {
+    "planned_topics": 10,
+    "planned_assets": 30,
+    "produced_assets": 0,
+    "approved_assets": 0,
+    "published_assets": 0
+  }
+}

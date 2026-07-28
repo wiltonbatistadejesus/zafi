@@ -1,0 +1,4 @@
+interface:
+  display_name: "Avatar Director"
+  short_description: "Direct voice, emotion and avatar delivery"
+  default_prompt: "Use $avatar-director-agent para definir voz, emoção, pausas, expressão e enquadramento do vídeo."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "CEO Review"
+  short_description: "Prepare approval, adjustment or rejection"
+  default_prompt: "Use $ceo-review-agent para consolidar o pacote e encaminhá-lo ao CEO para aprovar, ajustar ou rejeitar."

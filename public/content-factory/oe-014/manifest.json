@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "campaign_id": "oe014-primeira-campanha-v1",
+  "title": "Por que sobra mês no fim do salário?",
+  "status": "pending_ceo_approval",
+  "brand_asset_id": "zafi-logo-master-v1",
+  "benchmark": {
+    "url": "https://youtube.com/shorts/O_GuNBjtyp4",
+    "title": "3 passos para negociar sua dívida pelo Feirão da Serasa",
+    "author": "Serasa Ensina",
+    "usage": "technical_reference_only"
+  },
+  "outputs": {
+    "video": "/content-factory/oe-014/oe-014-primeira-campanha.mp4",
+    "carousel": [
+      "/content-factory/oe-014/carousel/slide-1.png",
+      "/content-factory/oe-014/carousel/slide-2.png",
+      "/content-factory/oe-014/carousel/slide-3.png",
+      "/content-factory/oe-014/carousel/slide-4.png",
+      "/content-factory/oe-014/carousel/slide-5.png",
+      "/content-factory/oe-014/carousel/slide-6.png",
+      "/content-factory/oe-014/carousel/slide-7.png"
+    ],
+    "static_image": "/content-factory/oe-014/arte-estatica.png",
+    "stories": [
+      "/content-factory/oe-014/stories/story-1.png",
+      "/content-factory/oe-014/stories/story-2.png",
+      "/content-factory/oe-014/stories/story-3.png"
+    ]
+  },
+  "publication": {
+    "authorized": false,
+    "instagram": null,
+    "tiktok": null,
+    "facebook": null,
+    "youtube": null
+  }
+}

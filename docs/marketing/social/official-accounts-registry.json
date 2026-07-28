@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-07-26T19:15:00-03:00",
+  "publication_policy": {
+    "automatic_publication_enabled": false,
+    "human_approval_required": true,
+    "credentials_storage": "server_secret_vault_only"
+  },
+  "accounts": [
+    { "platform": "instagram", "official_profile_url": null, "authentication_status": "pending_ceo_account_confirmation", "scheduling_status": "not_configured", "publishing_status": "blocked" },
+    { "platform": "tiktok", "official_profile_url": null, "authentication_status": "pending_ceo_account_confirmation", "scheduling_status": "not_configured", "publishing_status": "blocked" },
+    { "platform": "youtube", "official_profile_url": null, "authentication_status": "pending_official_channel_confirmation", "scheduling_status": "not_configured", "publishing_status": "blocked" },
+    { "platform": "facebook", "official_profile_url": null, "authentication_status": "pending_ceo_account_confirmation", "scheduling_status": "not_configured", "publishing_status": "blocked" },
+    { "platform": "linkedin", "official_profile_url": null, "authentication_status": "future_preparation", "scheduling_status": "not_configured", "publishing_status": "blocked" }
+  ]
+}

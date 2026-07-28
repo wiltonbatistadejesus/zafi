@@ -4,6 +4,7 @@ const VISITOR_KEY = 'zafi_visitor_id'
 const SESSION_KEY = 'zafi_session_id'
 const CONSENT_KEY = 'zafi_analytics_consent'
 const STARTED_AT_KEY = 'zafi_analysis_started_at'
+const CAMPAIGN_CONTEXT_KEY = 'zafi_campaign_context_v1'
 
 function stableId(storage: Storage, key: string) {
   const existing = storage.getItem(key)
@@ -27,16 +28,15 @@ export function getAnalyticsConsent(): AnalyticsConsent {
 
 function trafficContext() {
   const params = new URLSearchParams(window.location.search)
-  const utmSource = params.get('utm_source')?.slice(0, 100) ?? ''
-  const campaign = Object.fromEntries(
+  const liveCampaign = Object.fromEntries(
     ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']
       .map((key) => [key, params.get(key)?.slice(0, 200) ?? ''])
       .filter(([, value]) => Boolean(value))
   )
-  const referrer = document.referrer
+  const referrer = document.referrer.slice(0, 1000)
   let source = 'direct'
 
-  if (utmSource) source = utmSource
+  if (liveCampaign.utm_source) source = liveCampaign.utm_source
   else if (referrer) {
     try {
       const host = new URL(referrer).hostname.toLowerCase()
@@ -48,7 +48,34 @@ function trafficContext() {
     }
   }
 
-  return { source, campaign, referrer: referrer.slice(0, 1000) }
+  const live = { source, campaign: liveCampaign, referrer, capturedAt: new Date().toISOString() }
+  if (Object.keys(liveCampaign).length || source !== 'direct') {
+    window.sessionStorage.setItem(CAMPAIGN_CONTEXT_KEY, JSON.stringify(live))
+    return live
+  }
+
+  try {
+    const stored = JSON.parse(window.sessionStorage.getItem(CAMPAIGN_CONTEXT_KEY) ?? 'null') as typeof live | null
+    if (stored?.source && stored.campaign && typeof stored.campaign === 'object') return stored
+  } catch {
+    window.sessionStorage.removeItem(CAMPAIGN_CONTEXT_KEY)
+  }
+
+  return live
+}
+
+function officialTimeContext(occurredAt: Date) {
+  const timeZone = 'America/Sao_Paulo'
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('pt-BR', {
+    timeZone, weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  }).formatToParts(occurredAt).map((part) => [part.type, part.value]))
+  return {
+    timezone: timeZone,
+    local_date: `${parts.year}-${parts.month}-${parts.day}`,
+    local_time: `${parts.hour}:${parts.minute}:${parts.second}`,
+    weekday: parts.weekday,
+  }
 }
 
 export function markAnalysisStarted() {
@@ -68,6 +95,8 @@ export async function trackTelemetryEvent(
 ): Promise<TelemetryReceipt> {
   const identity = getTelemetryIdentity()
   const traffic = trafficContext()
+  const occurredAt = new Date()
+  const time = officialTimeContext(occurredAt)
   const response = await fetch('/api/telemetry', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -75,7 +104,7 @@ export async function trackTelemetryEvent(
     body: JSON.stringify({
       type,
       ...identity,
-      occurredAt: new Date().toISOString(),
+      occurredAt: occurredAt.toISOString(),
       sourcePage: `${window.location.pathname}${window.location.search}`.slice(0, 2048),
       source: traffic.source,
       consent: getAnalyticsConsent(),
@@ -83,9 +112,10 @@ export async function trackTelemetryEvent(
         category: window.matchMedia('(max-width: 767px)').matches ? 'mobile' : 'desktop',
         language: navigator.language,
         viewport: `${window.innerWidth}x${window.innerHeight}`,
+        timezone: time.timezone,
       },
       campaign: traffic.campaign,
-      payload: { ...payload, referrer: traffic.referrer, campaign: traffic.campaign },
+      payload: { ...payload, referrer: traffic.referrer, campaign: traffic.campaign, channel: traffic.campaign.utm_medium || traffic.source, event_time: time },
       schemaVersion: 1,
     }),
   })
@@ -187,6 +217,8 @@ export function buildPartnerTrackingUrl(path: string) {
   url.searchParams.set('source', traffic.source)
   const campaign = traffic.campaign.utm_campaign
   if (campaign) url.searchParams.set('campaign', campaign)
+  if (traffic.campaign.utm_medium) url.searchParams.set('medium', traffic.campaign.utm_medium)
+  if (traffic.campaign.utm_content) url.searchParams.set('content', traffic.campaign.utm_content)
   if (new URLSearchParams(window.location.search).get('zafi_ga_debug') === '1') url.searchParams.set('debug', '1')
   return `${url.pathname}${url.search}`
 }

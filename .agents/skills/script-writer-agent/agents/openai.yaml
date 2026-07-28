@@ -1,0 +1,4 @@
+interface:
+  display_name: "Script Writer"
+  short_description: "Create complete compliant video scripts"
+  default_prompt: "Use $script-writer-agent para criar hooks, roteiro, CTA, legenda, thumbnail, descrição e hashtags."

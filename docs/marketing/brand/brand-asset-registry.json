@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-07-27T09:45:00-03:00",
+  "approved_by": "CEO da Zafi",
+  "assets": [
+    {
+      "asset_id": "zafi-logo-master-v1",
+      "format": "svg",
+      "path": "/brand/zafi-logo.svg",
+      "status": "approved",
+      "sha256": "ca360cafad078df92ef2ec41014e49d5a76dd53789e809d2a94401c813e5f9fd",
+      "approved_at": "2026-07-27T09:45:00-03:00",
+      "mutable": false
+    },
+    {
+      "asset_id": "zafi-logo-master-v1-png",
+      "format": "png",
+      "path": "/brand/zafi-logo.png",
+      "status": "approved",
+      "derived_from": "zafi-logo-master-v1",
+      "transparent_background": true,
+      "approved_at": "2026-07-27T09:45:00-03:00",
+      "mutable": false
+    }
+  ]
+}

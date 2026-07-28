@@ -1,0 +1,4 @@
+interface:
+  display_name: "Thumbnail Producer"
+  short_description: "Produce three branded thumbnail concepts"
+  default_prompt: "Use $thumbnail-producer-agent para produzir três miniaturas Zafi por vídeo em estado draft."

@@ -100,6 +100,20 @@ export type CockpitData = {
       paidRevenue: string
     }>
   }
+  eventIntelligence: {
+    available: boolean
+    timezone: string
+    filters: { from: string; to: string; channel: string; campaign: string; source: string; eventType: string }
+    comparison: Metric[]
+    weekdays: Array<{ label: string; value: string }>
+    hours: Array<{ label: string; value: string }>
+    origins: Array<{ origin: string; visitors: string; sessions: string; completions: string }>
+    campaigns: Array<{ campaign: string; channel: string; visitors: string; analyses: string; clicks: string }>
+    recentEvents: Array<{
+      id: string; event: string; date: string; time: string; weekday: string; origin: string
+      campaign: string; channel: string; device: string; session: string; conversion: string
+    }>
+  }
   financeHistory: Array<{
     id: string
     transactionId: string

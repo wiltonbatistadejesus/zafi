@@ -16,6 +16,7 @@ Preparar campanhas de vídeo executáveis e coerentes com a marca.
 5. Gerar prompts específicos para IA, CapCut, Veo e Runway sem alegar que o vídeo foi renderizado.
 6. Preparar conceito de thumbnail, legenda e CTA.
 7. Salvar em `docs/marketing/videos/` e `docs/marketing/prompts/` como `draft`.
+8. Encaminhar o pacote aprovado ao `$video-producer-agent`, que executa somente adaptadores `VideoProvider`.
 
 ## Regras
 

@@ -1,4 +1,4 @@
-import { getAttributionCockpitSnapshot, getCockpitSnapshot, getGa4IntegrationStatus, getOperationalMonitorSnapshot } from '@/lib/telemetry/server'
+import { getAttributionCockpitSnapshot, getCockpitSnapshot, getEventIntelligenceSnapshot, getGa4IntegrationStatus, getOperationalMonitorSnapshot } from '@/lib/telemetry/server'
 import type { CockpitSnapshot, RevenueAmount } from '@/lib/telemetry/types'
 import type { CockpitData, Metric, Signal } from './types'
 
@@ -52,13 +52,27 @@ function contentMetrics(snapshot: CockpitSnapshot): Metric[] {
   }))
 }
 
-export async function getCockpitData(): Promise<CockpitData> {
+export type CockpitIntelligenceFilters = { from?: string; to?: string; channel?: string | null; campaign?: string | null; source?: string | null; eventType?: string | null }
+
+export async function getCockpitData(filters: CockpitIntelligenceFilters = {}): Promise<CockpitData> {
   const [data, attribution, operational, ga4Integration] = await Promise.all([
     getCockpitSnapshot(),
     getAttributionCockpitSnapshot(),
     getOperationalMonitorSnapshot(),
     getGa4IntegrationStatus(),
   ])
+  let intelligenceAvailable = true
+  const intelligence = await getEventIntelligenceSnapshot(filters).catch(() => {
+    intelligenceAvailable = false
+    return {
+      generated_at: data.generated_at, timezone: 'America/Sao_Paulo' as const,
+      period: { from: data.today_start, to: data.generated_at },
+      filters: { channel: filters.channel ?? null, campaign: filters.campaign ?? null, source: filters.source ?? null, event_type: filters.eventType ?? null },
+      visits_by_weekday: [], visits_by_hour: [], conversions_revenue_by_time: [], origins: [], campaigns: [],
+      comparison: { current: { page_views: 0, visitors: 0, analysis_completed: 0 }, previous: { page_views: 0, visitors: 0, analysis_completed: 0 } },
+      recent_events: [],
+    }
+  })
   const topPartner = data.partners[0]
   const topConversionPartner = data.conversion_partners[0]
   const ga4Signal: Signal = ga4Integration.status === 'integrated' ? 'healthy'
@@ -206,7 +220,37 @@ export async function getCockpitData(): Promise<CockpitData> {
         paidRevenue: decision.currency ? currency(decision.revenue_paid, decision.currency) : 'Sem receita',
       })),
     },
-    financeHistory: data.recent_conversions.slice(0, 8).map((conversion) => ({
+    eventIntelligence: {
+      available: intelligenceAvailable,
+      timezone: intelligence.timezone,
+      filters: {
+        from: intelligence.period.from.slice(0, 10), to: intelligence.period.to.slice(0, 10),
+        channel: intelligence.filters.channel ?? '', campaign: intelligence.filters.campaign ?? '',
+        source: intelligence.filters.source ?? '', eventType: intelligence.filters.event_type ?? '',
+      },
+      comparison: intelligenceAvailable ? [
+        { label: 'Visitas de página', value: number.format(intelligence.comparison.current.page_views), detail: `Período anterior: ${number.format(intelligence.comparison.previous.page_views)}` },
+        { label: 'Visitantes', value: number.format(intelligence.comparison.current.visitors), detail: `Período anterior: ${number.format(intelligence.comparison.previous.visitors)}` },
+        { label: 'Análises concluídas', value: number.format(intelligence.comparison.current.analysis_completed), detail: `Período anterior: ${number.format(intelligence.comparison.previous.analysis_completed)}` },
+      ] : [
+        { label: 'Inteligência temporal', value: 'Migração pendente', detail: 'O funil principal continua disponível; este recorte não apresenta números parciais.' },
+      ],
+      weekdays: intelligence.visits_by_weekday.map((item) => ({ label: item.weekday, value: number.format(item.value) })),
+      hours: intelligence.visits_by_hour.map((item) => ({ label: `${String(item.hour).padStart(2, '0')}h`, value: number.format(item.value) })),
+      origins: intelligence.origins.map((item) => ({
+        origin: item.origin, visitors: number.format(item.visitors), sessions: number.format(item.sessions), completions: number.format(item.completions),
+      })),
+      campaigns: intelligence.campaigns.map((item) => ({
+        campaign: item.campaign, channel: item.channel, visitors: number.format(item.visitors),
+        analyses: `${number.format(item.analyses_completed)} / ${number.format(item.analyses_started)}`,
+        clicks: number.format(item.partner_clicks),
+      })),
+      recentEvents: intelligence.recent_events.map((event) => ({
+        id: event.id, event: event.event_type, date: event.date, time: event.time, weekday: event.weekday,
+        origin: event.origin, campaign: event.campaign, channel: event.channel, device: event.device,
+        session: event.session_id, conversion: event.conversion ? `${event.conversion.status} · ${event.conversion.transaction_id}` : 'Sem conversão relacionada',
+      })),
+    },    financeHistory: data.recent_conversions.slice(0, 8).map((conversion) => ({
       id: conversion.id,
       transactionId: conversion.transaction_id,
       partner: conversion.partner_name,

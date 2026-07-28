@@ -1,0 +1,4 @@
+interface:
+  display_name: "Video Producer"
+  short_description: "Generate videos through provider adapters"
+  default_prompt: "Use $video-producer-agent para produzir um preview em draft por meio de um VideoProvider desacoplado."

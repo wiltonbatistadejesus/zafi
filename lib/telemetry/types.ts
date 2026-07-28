@@ -240,3 +240,31 @@ export type AffiliateConversion = {
   last_received_at: string
   updated_at: string
 }
+
+export type EventIntelligenceSnapshot = {
+  generated_at: string
+  timezone: 'America/Sao_Paulo'
+  period: { from: string; to: string }
+  filters: { channel: string | null; campaign: string | null; source: string | null; event_type: string | null }
+  visits_by_weekday: Array<{ weekday_number: number; weekday: string; value: number }>
+  visits_by_hour: Array<{ hour: number; value: number }>
+  conversions_revenue_by_time: Array<{
+    local_date: string; hour: number; origin: string; campaign: string; channel: string; currency: string
+    conversions: number; revenue_created: number | string; revenue_approved: number | string; revenue_paid: number | string
+  }>
+  origins: Array<{ origin: string; visitors: number; sessions: number; completions: number }>
+  campaigns: Array<{
+    campaign: string; channel: string; visitors: number; sessions: number
+    analyses_started: number; analyses_completed: number; partner_clicks: number
+  }>
+  comparison: {
+    current: { page_views: number; visitors: number; analysis_completed: number }
+    previous: { page_views: number; visitors: number; analysis_completed: number }
+  }
+  recent_events: Array<{
+    id: string; event_type: TelemetryEventType; date: string; time: string; timezone: string; weekday: string
+    origin: string; campaign: string; channel: string; device: string; session_id: string; visitor_id: string
+    source_page: string
+    conversion: null | { id: string; transaction_id: string; status: string; commission: number | string | null; currency: string | null }
+  }>
+}

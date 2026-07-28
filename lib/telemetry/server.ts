@@ -1,5 +1,5 @@
 import { getSupabaseClient } from '@/lib/supabase'
-import type { AnalyticsConsent, AttributionCockpitSnapshot, CockpitSnapshot, Ga4IntegrationStatus, OperationalMonitorSnapshot, TelemetryEventType } from './types'
+import type { AnalyticsConsent, AttributionCockpitSnapshot, CockpitSnapshot, EventIntelligenceSnapshot, Ga4IntegrationStatus, OperationalMonitorSnapshot, TelemetryEventType } from './types'
 import type { NormalizedActionpayPostback, FlatPostbackPayload } from '@/lib/actionpay/postback'
 import type { PartnerDefinition } from '@/lib/partners'
 
@@ -205,6 +205,26 @@ export async function getOperationalMonitorSnapshot(windowHours = 24): Promise<O
   return data as OperationalMonitorSnapshot
 }
 
+export async function getEventIntelligenceSnapshot(input?: {
+  from?: string
+  to?: string
+  channel?: string | null
+  campaign?: string | null
+  source?: string | null
+  eventType?: string | null
+}): Promise<EventIntelligenceSnapshot> {
+  const { data, error } = await getSupabaseClient().rpc('telemetry_event_intelligence_snapshot', {
+    p_secret: secret(),
+    p_from: input?.from ?? null,
+    p_to: input?.to ?? null,
+    p_channel: input?.channel ?? null,
+    p_campaign: input?.campaign ?? null,
+    p_source: input?.source ?? null,
+    p_event_type: input?.eventType ?? null,
+  })
+  if (error || !data) throw new Error(`Event intelligence snapshot failed: ${error?.message ?? 'empty response'}`)
+  return data as EventIntelligenceSnapshot
+}
 export async function getGa4IntegrationStatus(windowHours = 24): Promise<Ga4IntegrationStatus> {
   const { data, error } = await getSupabaseClient().rpc('telemetry_ga4_integration_status', {
     p_secret: secret(),

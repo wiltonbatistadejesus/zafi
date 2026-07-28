@@ -1,0 +1,4 @@
+interface:
+  display_name: "Compliance Reviewer"
+  short_description: "Block unsafe financial content claims"
+  default_prompt: "Use $compliance-reviewer-agent para bloquear promessas financeiras e validar compliance antes da revisão do CEO."

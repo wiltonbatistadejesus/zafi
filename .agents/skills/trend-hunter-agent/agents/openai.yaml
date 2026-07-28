@@ -1,0 +1,4 @@
+interface:
+  display_name: "Trend Hunter"
+  short_description: "Rank verified financial trends daily"
+  default_prompt: "Use $trend-hunter-agent para pesquisar e ranquear oportunidades financeiras com fonte e data."

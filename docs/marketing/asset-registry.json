@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-07-21T12:00:00-03:00",
+  "updated_at": "2026-07-24T09:30:00-03:00",
   "assets": [
     {
       "asset_id": "calendar-organic-90d-20260721-v1",
@@ -54,6 +54,96 @@
       "publication_id": null,
       "created_at": "2026-07-21T12:00:00-03:00",
       "updated_at": "2026-07-21T12:00:00-03:00"
+    },
+    {
+      "asset_id": "oe008-institucional-v1",
+      "theme_id": "zafi-entender-antes-de-decidir",
+      "brief_id": "oe008-brief-institucional",
+      "asset_type": "video_preview",
+      "version": 1,
+      "status": "pending_approval",
+      "path": "docs/marketing/OE-008-autonomous-content-factory.md",
+      "parent_asset_id": null,
+      "source_ids": ["oe-008", "oe008-research-001"],
+      "approval_id": null,
+      "publication_id": null,
+      "created_at": "2026-07-24T09:30:00-03:00",
+      "updated_at": "2026-07-24T09:30:00-03:00"
+    },
+    {
+      "asset_id": "oe008-educacional-v1",
+      "theme_id": "qual-divida-pagar-primeiro",
+      "brief_id": "oe008-brief-educacional",
+      "asset_type": "video_preview",
+      "version": 1,
+      "status": "pending_approval",
+      "path": "docs/marketing/OE-008-autonomous-content-factory.md",
+      "parent_asset_id": "campaign-qual-divida-pagar-primeiro-v2",
+      "source_ids": ["oe-008", "oe008-research-002"],
+      "approval_id": null,
+      "publication_id": null,
+      "created_at": "2026-07-24T09:30:00-03:00",
+      "updated_at": "2026-07-24T09:30:00-03:00"
+    },
+    {
+      "asset_id": "oe008-viral-v1",
+      "theme_id": "divida-pequena-juros-grandes",
+      "brief_id": "oe008-brief-viral",
+      "asset_type": "video_preview",
+      "version": 1,
+      "status": "pending_approval",
+      "path": "docs/marketing/OE-008-autonomous-content-factory.md",
+      "parent_asset_id": null,
+      "source_ids": ["oe-008", "oe008-research-003"],
+      "approval_id": null,
+      "publication_id": null,
+      "created_at": "2026-07-24T09:30:00-03:00",
+      "updated_at": "2026-07-24T09:30:00-03:00"
+    },
+    {
+      "asset_id": "oe008-institucional-thumbnails-v1",
+      "theme_id": "zafi-entender-antes-de-decidir",
+      "brief_id": "oe008-brief-institucional",
+      "asset_type": "thumbnail_set",
+      "version": 1,
+      "status": "pending_approval",
+      "path": "public/content-factory/oe-008/institucional",
+      "parent_asset_id": "oe008-institucional-v1",
+      "source_ids": ["oe-008"],
+      "approval_id": null,
+      "publication_id": null,
+      "created_at": "2026-07-24T09:30:00-03:00",
+      "updated_at": "2026-07-24T09:30:00-03:00"
+    },
+    {
+      "asset_id": "oe008-educacional-thumbnails-v1",
+      "theme_id": "qual-divida-pagar-primeiro",
+      "brief_id": "oe008-brief-educacional",
+      "asset_type": "thumbnail_set",
+      "version": 1,
+      "status": "pending_approval",
+      "path": "public/content-factory/oe-008/educacional",
+      "parent_asset_id": "oe008-educacional-v1",
+      "source_ids": ["oe-008"],
+      "approval_id": null,
+      "publication_id": null,
+      "created_at": "2026-07-24T09:30:00-03:00",
+      "updated_at": "2026-07-24T09:30:00-03:00"
+    },
+    {
+      "asset_id": "oe008-viral-thumbnails-v1",
+      "theme_id": "divida-pequena-juros-grandes",
+      "brief_id": "oe008-brief-viral",
+      "asset_type": "thumbnail_set",
+      "version": 1,
+      "status": "pending_approval",
+      "path": "public/content-factory/oe-008/viral",
+      "parent_asset_id": "oe008-viral-v1",
+      "source_ids": ["oe-008"],
+      "approval_id": null,
+      "publication_id": null,
+      "created_at": "2026-07-24T09:30:00-03:00",
+      "updated_at": "2026-07-24T09:30:00-03:00"
     }
   ]
 }

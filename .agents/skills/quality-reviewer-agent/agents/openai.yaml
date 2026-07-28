@@ -1,0 +1,4 @@
+interface:
+  display_name: "Quality Reviewer"
+  short_description: "Score clarity, retention and brand quality"
+  default_prompt: "Use $quality-reviewer-agent para revisar clareza, retenção, branding, CTA, texto e qualidade visual."

@@ -1,0 +1,17 @@
+{
+  "oe": "OE-012",
+  "mission": "T0 — Primeiro vídeo oficial da Zafi",
+  "title": "Por que sobra mês no fim do salário?",
+  "format": "vertical 9:16",
+  "resolution": "1080x1920",
+  "duration_seconds": 38,
+  "provider": "zafi-local-motion-v2",
+  "estimated_cost_brl": 0,
+  "narration": "Microsoft Maria Desktop pt-BR",
+  "captions": "burned-in scene captions",
+  "status": "rendered",
+  "video_path": "/content-factory/oe-012/t0/zafi-t0-sobra-mes.mp4",
+  "thumbnail_path": "/content-factory/oe-012/t0/thumbnail.png",
+  "sha256": "5d2862b4dc3c5f29e4c043aa6a803a89b72d8dce726313ecd69f67354137f679",
+  "generated_at": "2026-07-26T11:08:48.232Z"
+}

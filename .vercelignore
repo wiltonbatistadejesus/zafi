@@ -1,0 +1,8 @@
+.git
+.next
+node_modules
+tmp
+*.docx
+public/content-factory/oe-014/source
+public/content-factory/oe-014/frames
+public/content-factory/oe-014/video-sem-audio.mp4
