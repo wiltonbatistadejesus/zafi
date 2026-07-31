@@ -231,7 +231,7 @@ export default function Solutions({ name, debts, totalDebt, estimatedMonths }: S
       <footer className="text-center text-xs text-zafi-secondary">
         <p>Condições e aprovação dependem da análise de cada instituição.</p>
         <Link href="/privacy" className="mt-2 inline-block font-semibold text-zafi-blue underline">Política de Privacidade</Link>
-        <p className="mt-4 font-medium text-zafi-text">Zafi · Sua vida financeira mais leve.</p>
+        <p className="mt-4 font-medium text-zafi-text">Zafi. O seu bolso agradece.</p>
       </footer>
     </div>
   )

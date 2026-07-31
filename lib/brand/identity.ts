@@ -22,6 +22,6 @@ export const ZAFI_BRAND = {
     primary: 'Inter',
     utility: 'ui-monospace',
   },
-  slogan: 'Sua vida financeira mais leve.',
-  primaryCta: 'Faça o diagnóstico financeiro gratuito da Zafi.',
+  slogan: 'Zafi. O seu bolso agradece.',
+  primaryCta: 'Faça seu diagnóstico financeiro gratuito em meuzafi.com.br.',
 } as const

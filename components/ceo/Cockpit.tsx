@@ -81,7 +81,7 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         <div className={styles.topbarRight}>
           <div><strong>{today}</strong><span>Atualizado {updated}</span></div>
           <a className={styles.logout} href="/admin/council">Conselho</a>
-          <a className={styles.logout} href="/admin/content-factory">Content Factory</a>
+          <a className={styles.logout} href="/admin/content-studio">Content Studio</a>
           <a className={styles.logout} href="/admin/telemetry">Validar dados</a>
           <form action={logout}><button className={styles.logout} type="submit" aria-label="Sair do Cockpit">Sair</button></form>
         </div>

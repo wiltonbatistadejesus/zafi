@@ -10,9 +10,9 @@ A Zafi ajuda pessoas endividadas a entender a própria situação e escolher o p
 
 Princípio: ajudar primeiro; monetizar como consequência.
 
-Slogan operacional: **Sua vida financeira mais leve.**
+Slogan oficial: **Zafi. O seu bolso agradece.**
 
-CTA principal: **Faça o diagnóstico financeiro gratuito da Zafi.**
+CTA oficial: **Faça seu diagnóstico financeiro gratuito em meuzafi.com.br.**
 
 ## Logo master
 

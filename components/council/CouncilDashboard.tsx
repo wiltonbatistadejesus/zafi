@@ -46,7 +46,7 @@ function Header({ session }: { session: AdminSession }) {
       <nav>
         <Link className={styles.activeNav} href="/admin/council">Ordens Executivas</Link>
         {session.role === 'ceo' && <Link href="/admin">CEO Cockpit</Link>}
-        {session.role === 'ceo' && <Link href="/admin/content-factory">Content Factory</Link>}
+        {session.role === 'ceo' && <Link href="/admin/content-studio">Content Studio</Link>}
       </nav>
       <div className={styles.identity}>
         <span>{roleLabels[session.role]}</span>

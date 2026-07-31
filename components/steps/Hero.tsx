@@ -82,7 +82,7 @@ export default function Hero({ onStart }: HeroProps) {
 
       {/* Footer tagline */}
       <footer className="text-center pb-6 text-zafi-secondary text-sm">
-        Sua vida financeira mais leve. ✦
+        O seu bolso agradece. ✦
       </footer>
     </div>
   )

@@ -9,7 +9,7 @@ const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim()
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://meuzafi.com.br'),
-  title: 'Zafi · Sua vida financeira mais leve',
+  title: 'Zafi · O seu bolso agradece',
   description:
     'Organize suas dívidas, receba um diagnóstico financeiro e descubra o caminho mais inteligente para sair do endividamento. Grátis.',
   keywords: ['dívidas', 'renegociação', 'finanças pessoais', 'sair das dívidas', 'zafi'],
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     locale: 'pt_BR',
     url: '/',
     siteName: 'Zafi',
-    title: 'Zafi · Sua vida financeira mais leve',
+    title: 'Zafi · O seu bolso agradece',
     description: 'Organize suas dívidas e encontre um caminho mais inteligente para sair do endividamento.',
   },
   // og:image and other Open Graph tags — add before launch:

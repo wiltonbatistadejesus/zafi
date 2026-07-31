@@ -1,12 +1,5 @@
-import type { Metadata } from 'next'
-import ContentFactoryReview from '@/components/ceo/ContentFactoryReview'
-import { contentFactoryPilots } from '@/lib/content-factory/pilots'
+import { redirect } from 'next/navigation'
 
-export const metadata: Metadata = {
-  title: 'Content Factory · CEO Review · Zafi',
-  robots: { index: false, follow: false },
-}
-
-export default function ContentFactoryPage() {
-  return <ContentFactoryReview pilots={contentFactoryPilots} />
+export default function LegacyContentFactoryPage() {
+  redirect('/admin/content-studio')
 }
