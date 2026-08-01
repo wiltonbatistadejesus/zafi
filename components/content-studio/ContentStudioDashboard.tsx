@@ -68,7 +68,7 @@ export default function ContentStudioDashboard({ dashboard, filters, notice }: {
       <section className={styles.gallery}>
         {dashboard.contents.map((content) => {
           const version = content.current_version
-          const preview = `/admin/content-studio/assets/${version.id}/1`
+          const preview = `/admin/content-studio/assets/${version.id}/1?renderer=resvg-inter-v1`
           return <article className={styles.contentCard} key={content.id}>
             <label className={styles.selector}><input type="checkbox" name="contentId" value={content.id} form="bulk-content-action" /><span>Selecionar</span></label>
             <Link className={styles.preview} href={`/admin/content-studio/${content.id}`}><Image src={preview} alt={version.pages[0]?.alt_text ?? content.internal_title} width={content.format.width} height={content.format.height} unoptimized /></Link>

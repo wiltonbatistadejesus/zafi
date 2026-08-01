@@ -35,7 +35,7 @@ export default function ContentStudioDetail({ content, notice }: { content: Stud
     <section className={styles.reviewLayout}>
       <div className={styles.artworkWall}>
         <header><p>Preview final</p><span>{content.format.width} × {content.format.height}px · logo master</span></header>
-        <div className={styles.artworkGrid}>{version.pages.map((page) => <figure key={page.id}><Image src={`/admin/content-studio/assets/${version.id}/${page.page_number}`} alt={page.alt_text} width={content.format.width} height={content.format.height} unoptimized /><figcaption>Página {String(page.page_number).padStart(2, '0')} {currentIsApproved ? <a href={`/admin/content-studio/assets/${version.id}/${page.page_number}`} download>Baixar PNG</a> : <span>Preview protegido</span>}</figcaption></figure>)}</div>
+        <div className={styles.artworkGrid}>{version.pages.map((page) => <figure key={page.id}><Image src={`/admin/content-studio/assets/${version.id}/${page.page_number}?renderer=resvg-inter-v1`} alt={page.alt_text} width={content.format.width} height={content.format.height} unoptimized /><figcaption>Página {String(page.page_number).padStart(2, '0')} {currentIsApproved ? <a href={`/admin/content-studio/assets/${version.id}/${page.page_number}?renderer=resvg-inter-v1`} download>Baixar PNG</a> : <span>Preview protegido</span>}</figcaption></figure>)}</div>
       </div>
 
       <aside className={styles.approvalRail}>
@@ -63,8 +63,8 @@ export default function ContentStudioDetail({ content, notice }: { content: Stud
     {previousVersion && <section className={styles.comparisonPanel}>
       <header><p>Comparação de versões</p><h2>O que mudou da v{previousVersion.version_number} para a v{version.version_number}</h2></header>
       <div className={styles.versionCompare}>
-        <article><div><b>Anterior · v{previousVersion.version_number}</b><span>{STATUS_LABELS[previousVersion.status]}</span></div>{previousVersion.pages[0] && <Image src={`/admin/content-studio/assets/${previousVersion.id}/${previousVersion.pages[0].page_number}`} alt={previousVersion.pages[0].alt_text} width={content.format.width} height={content.format.height} unoptimized />}<p>{previousVersion.art_text}</p><small>{previousVersion.change_summary ?? 'Versão anterior preservada.'}</small></article>
-        <article><div><b>Atual · v{version.version_number}</b><span>{STATUS_LABELS[version.status]}</span></div>{version.pages[0] && <Image src={`/admin/content-studio/assets/${version.id}/${version.pages[0].page_number}`} alt={version.pages[0].alt_text} width={content.format.width} height={content.format.height} unoptimized />}<p>{version.art_text}</p><small>{version.change_summary ?? 'Versão atual.'}</small></article>
+        <article><div><b>Anterior · v{previousVersion.version_number}</b><span>{STATUS_LABELS[previousVersion.status]}</span></div>{previousVersion.pages[0] && <Image src={`/admin/content-studio/assets/${previousVersion.id}/${previousVersion.pages[0].page_number}?renderer=resvg-inter-v1`} alt={previousVersion.pages[0].alt_text} width={content.format.width} height={content.format.height} unoptimized />}<p>{previousVersion.art_text}</p><small>{previousVersion.change_summary ?? 'Versão anterior preservada.'}</small></article>
+        <article><div><b>Atual · v{version.version_number}</b><span>{STATUS_LABELS[version.status]}</span></div>{version.pages[0] && <Image src={`/admin/content-studio/assets/${version.id}/${version.pages[0].page_number}?renderer=resvg-inter-v1`} alt={version.pages[0].alt_text} width={content.format.width} height={content.format.height} unoptimized />}<p>{version.art_text}</p><small>{version.change_summary ?? 'Versão atual.'}</small></article>
       </div>
     </section>}
 
