@@ -21,8 +21,8 @@ export async function buildContentExport(contents: StudioContentDetail[]) {
     if (!folder) throw new Error('Não foi possível criar a pasta de exportação')
     for (const page of version.pages) {
       const input = await getArtworkInput(version.id, page.page_number)
-      const image = renderStudioArtwork(input)
-      folder.file(`pagina-${String(page.page_number).padStart(2, '0')}.png`, Buffer.from(await image.arrayBuffer()))
+      const image = await renderStudioArtwork(input)
+      folder.file(`pagina-${String(page.page_number).padStart(2, '0')}.png`, image)
     }
     folder.file('legenda.txt', `${version.caption}\n\n${version.cta}\n\n${version.hashtags.join(' ')}`)
     folder.file('metadados.json', JSON.stringify({

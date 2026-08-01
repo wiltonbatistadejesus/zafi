@@ -12,9 +12,7 @@ export async function GET(request: Request, { params }: { params: { versionId: s
   if (!Number.isInteger(pageNumber) || pageNumber < 1) return new Response('Página inválida', { status: 400 })
   try {
     const input = await getArtworkInput(params.versionId, pageNumber)
-    const response = renderStudioArtwork(input)
-    response.headers.set('Cache-Control', 'private, max-age=300')
-    response.headers.set('Content-Disposition', `inline; filename="zafi-${input.content.slug}-v${input.version.version_number}-p${pageNumber}.png"`)
+    const png = await renderStudioArtwork(input)
     console.log(JSON.stringify({
       level: 'info',
       message: 'Content Studio artwork rendered',
@@ -24,7 +22,11 @@ export async function GET(request: Request, { params }: { params: { versionId: s
       pageNumber,
       durationMs: Date.now() - startedAt,
     }))
-    return response
+    return new Response(new Uint8Array(png), { headers: {
+      'Content-Type': 'image/png',
+      'Cache-Control': 'private, max-age=300',
+      'Content-Disposition': `inline; filename="zafi-${input.content.slug}-v${input.version.version_number}-p${pageNumber}.png"`,
+    } })
   } catch (error) {
     console.error(JSON.stringify({
       level: 'error',
