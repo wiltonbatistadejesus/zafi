@@ -15,7 +15,7 @@ export async function getArtworkInput(versionId: string, pageNumber: number) {
   const { data: version, error } = await client.from('content_studio_content_versions').select(`
     id,content_id,version_number,status,art_text,caption,cta,hashtags,sources,visual_direction,
     design_variant,author_name,author_type,based_on_version_id,change_summary,created_at,
-    content:content_studio_contents(
+    content:content_studio_contents!content_studio_content_versions_content_id_fkey(
       id,slug,internal_title,theme,objective,status,current_version_number,current_version_id,
       approved_version_id,created_by,created_at,updated_at,
       category:content_studio_categories(id,slug,label),
