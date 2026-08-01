@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { logout } from '@/app/admin/login/actions'
@@ -11,6 +14,9 @@ const notices: Record<string, string> = {
   'bulk-approve': 'Conteúdos aprovados em lote.',
   'bulk-reject': 'Conteúdos reprovados e refeitos em novas versões.',
   'bulk-archive': 'Conteúdos arquivados em lote.',
+  'bulk-empty': 'Selecione ao menos um conteúdo antes de executar.',
+  'bulk-invalid-action': 'Escolha uma ação em lote antes de executar.',
+  'bulk-reason-required': 'Escolha o motivo da reprovação em lote.',
 }
 
 function RejectionFields() {
@@ -18,6 +24,13 @@ function RejectionFields() {
 }
 
 export default function ContentStudioDashboard({ dashboard, filters, notice }: { dashboard: StudioDashboard; filters: StudioFilters; notice?: string }) {
+  const [selectedContentIds, setSelectedContentIds] = useState<string[]>([])
+  const selectedContentSet = new Set(selectedContentIds)
+  const toggleContent = (contentId: string, selected: boolean) => {
+    setSelectedContentIds((current) => selected
+      ? Array.from(new Set([...current, contentId]))
+      : current.filter((id) => id !== contentId))
+  }
   const updated = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Sao_Paulo' }).format(new Date(dashboard.generatedAt))
   const metrics = [
     ['Total', dashboard.metrics.total], ['Aguardando', dashboard.metrics.pending], ['Aprovados', dashboard.metrics.approved],
@@ -51,14 +64,15 @@ export default function ContentStudioDashboard({ dashboard, filters, notice }: {
     </section>
 
     <form id="bulk-content-action" action={bulkContentAction}>
+      {selectedContentIds.map((contentId) => <input key={contentId} type="hidden" name="contentId" value={contentId} />)}
       <section className={styles.bulkBar}>
-        <div><strong>Ações em lote</strong><span>Selecione as peças na biblioteca.</span></div>
-        <select name="bulkAction" defaultValue=""><option value="" disabled>Escolha uma ação</option><option value="approve">Aprovar</option><option value="reject">Reprovar e refazer</option><option value="archive">Arquivar</option></select>
+        <div><strong>Ações em lote</strong><span>{selectedContentIds.length ? `${selectedContentIds.length} selecionado(s)` : 'Selecione as peças na biblioteca.'}</span></div>
+        <select name="bulkAction" defaultValue="" required><option value="" disabled>Escolha uma ação</option><option value="approve">Aprovar</option><option value="reject">Reprovar e refazer</option><option value="archive">Arquivar</option></select>
         <select name="reasonCode" defaultValue=""><option value="">Motivo se reprovar</option>{REJECTION_REASONS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select>
         <input name="guidance" placeholder="Orientação opcional" />
         <div className={styles.bulkButtons}>
-          <button type="submit">Executar</button>
-          <button type="submit" formAction="/admin/content-studio/export" formMethod="post" className={styles.bulkExport}>Exportar aprovados</button>
+          <button type="submit" disabled={!selectedContentIds.length}>Executar ({selectedContentIds.length})</button>
+          <button type="submit" formAction="/admin/content-studio/export" formMethod="post" className={styles.bulkExport} disabled={!selectedContentIds.length}>Exportar aprovados</button>
         </div>
       </section>
 
@@ -70,7 +84,7 @@ export default function ContentStudioDashboard({ dashboard, filters, notice }: {
           const version = content.current_version
           const preview = `/admin/content-studio/assets/${version.id}/1?renderer=resvg-inter-v1`
           return <article className={styles.contentCard} key={content.id}>
-            <label className={styles.selector}><input type="checkbox" name="contentId" value={content.id} form="bulk-content-action" /><span>Selecionar</span></label>
+            <label className={styles.selector}><input type="checkbox" checked={selectedContentSet.has(content.id)} onChange={(event) => toggleContent(content.id, event.currentTarget.checked)} /><span>Selecionar</span></label>
             <Link className={styles.preview} href={`/admin/content-studio/${content.id}`}><Image src={preview} alt={version.pages[0]?.alt_text ?? content.internal_title} width={content.format.width} height={content.format.height} unoptimized /></Link>
             <div className={styles.cardBody}>
               <div className={styles.meta}><span>{content.network.label}</span><span>{content.format.label}</span><b className={styles[content.status]}>{STATUS_LABELS[content.status]}</b></div>

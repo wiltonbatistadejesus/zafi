@@ -90,12 +90,13 @@ export async function bulkContentAction(formData: FormData) {
   const session = requireCeo()
   const action = value(formData, 'bulkAction') as 'approve' | 'reject' | 'archive'
   const ids = selectedIds(formData)
-  if (!ids.length) throw new Error('Selecione ao menos um conteúdo')
-  if (!['approve', 'reject', 'archive'].includes(action)) throw new Error('Ação em lote inválida')
+  if (!ids.length) redirect('/admin/content-studio?notice=bulk-empty')
+  if (!['approve', 'reject', 'archive'].includes(action)) redirect('/admin/content-studio?notice=bulk-invalid-action')
 
   const reasonCode = value(formData, 'reasonCode')
   const guidance = value(formData, 'guidance')
-  if (action === 'reject' && !reasonCode) throw new Error('O motivo da reprovação em lote é obrigatório')
+  if (action === 'reject' && !reasonCode) redirect('/admin/content-studio?notice=bulk-reason-required')
+  console.info('[content-studio] bulk action started', { action, selectedCount: ids.length })
   const outcomes: Array<{ contentId: string; versionId: string | null; outcome: string }> = []
 
   for (const contentId of ids) {
@@ -111,6 +112,7 @@ export async function bulkContentAction(formData: FormData) {
   }
 
   await recordBulkAction({ action, contentIds: ids, reasonCode, guidance, session, outcomes })
+  console.info('[content-studio] bulk action completed', { action, selectedCount: ids.length })
   refresh()
   redirect(`/admin/content-studio?notice=bulk-${action}`)
 }
