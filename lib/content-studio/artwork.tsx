@@ -1,6 +1,7 @@
 ﻿import 'server-only'
 
-import sharp from 'sharp'
+import path from 'path'
+import { Resvg } from '@resvg/resvg-js'
 import type { StudioContent, StudioPage, StudioVersion } from './types'
 
 type ArtworkInput = {
@@ -95,22 +96,26 @@ function artworkSvg({ content, version, page, logoDataUri }: ArtworkInput) {
     ${decoration(version.design_variant, width, height)}
     <image href="${logoDataUri}" x="68" y="58" width="190" height="72" preserveAspectRatio="xMinYMid meet"/>
     <rect x="${width - 355}" y="70" width="285" height="52" rx="26" fill="${dark ? colors.white : colors.light}"/>
-    <text x="${width - 212}" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="700" letter-spacing="1.2" fill="${colors.blue}">${escapeXml(content.category.label.toUpperCase())}</text>
-    <text x="68" y="${headlineY - 120}" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="3" fill="${colors.blue}">${escapeXml(content.theme.toUpperCase())}</text>
+    <text x="${width - 212}" y="104" text-anchor="middle" font-family="Inter" font-size="18" font-weight="700" letter-spacing="1.2" fill="${colors.blue}">${escapeXml(content.category.label.toUpperCase())}</text>
+    <text x="68" y="${headlineY - 120}" font-family="Inter" font-size="24" font-weight="700" letter-spacing="3" fill="${colors.blue}">${escapeXml(content.theme.toUpperCase())}</text>
     <rect x="68" y="${headlineY - 82}" width="96" height="12" rx="6" fill="${colors.blue}"/>
-    <text x="68" y="${headlineY}" font-family="Arial, sans-serif" font-size="${headlineSize}" font-weight="700" letter-spacing="-2.5" fill="${colors.navy}">
+    <text x="68" y="${headlineY}" font-family="Inter" font-size="${headlineSize}" font-weight="700" letter-spacing="-2.5" fill="${colors.navy}">
       ${lines.map((line, index) => `<tspan x="68" dy="${index === 0 ? 0 : lineHeight}">${escapeXml(line)}</tspan>`).join('')}
     </text>
     <line x1="68" y1="${height - 165}" x2="${width - 68}" y2="${height - 165}" stroke="${colors.navy}" stroke-width="4"/>
-    <text x="68" y="${height - 112}" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="${colors.navy}">Zafi. O seu bolso agradece.</text>
-    <text x="68" y="${height - 78}" font-family="Arial, sans-serif" font-size="19" fill="#52637d">Diagn&#243;stico financeiro gratuito em meuzafi.com.br</text>
+    <text x="68" y="${height - 112}" font-family="Inter" font-size="25" font-weight="700" fill="${colors.navy}">Zafi. O seu bolso agradece.</text>
+    <text x="68" y="${height - 78}" font-family="Inter" font-size="19" fill="#52637d">Diagn&#243;stico financeiro gratuito em meuzafi.com.br</text>
     <circle cx="${width - 98}" cy="${height - 112}" r="31" fill="${colors.blue}"/><path d="M ${width - 111} ${height - 112} H ${width - 86} M ${width - 96} ${height - 123} L ${width - 85} ${height - 112} ${width - 96} ${height - 101}" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="68" y="${height - 30}" font-family="monospace" font-size="14" letter-spacing="1" fill="#718096">${escapeXml(proof)}</text>
-    <text x="${width - 68}" y="${height - 30}" text-anchor="end" font-family="monospace" font-size="14" letter-spacing="1" fill="#718096">APROVA&#199;&#195;O HUMANA OBRIGAT&#211;RIA</text>
+    <text x="68" y="${height - 30}" font-family="Inter" font-size="14" letter-spacing="1" fill="#718096">${escapeXml(proof)}</text>
+    <text x="${width - 68}" y="${height - 30}" text-anchor="end" font-family="Inter" font-size="14" letter-spacing="1" fill="#718096">APROVA&#199;&#195;O HUMANA OBRIGAT&#211;RIA</text>
   </svg>`
 }
 
 export async function renderStudioArtwork({ content, version, page, logoDataUri }: ArtworkInput) {
   const svg = artworkSvg({ content, version, page, logoDataUri })
-  return sharp(Buffer.from(svg)).png({ compressionLevel: 9, quality: 95 }).toBuffer()
+  const fontFile = path.join(process.cwd(), 'public', 'brand', 'fonts', 'InterVariable.ttf')
+  const renderer = new Resvg(svg, {
+    font: { fontFiles: [fontFile], loadSystemFonts: false, defaultFontFamily: 'Inter' },
+  })
+  return Buffer.from(renderer.render().asPng())
 }
