@@ -18,6 +18,8 @@ function date(value: string) {
 
 export default function ContentStudioDetail({ content, notice }: { content: StudioContentDetail; notice?: string }) {
   const version = content.current_version
+  const previousVersion = content.versions.find((item) => item.version_number === version.version_number - 1)
+  const currentIsApproved = content.approved_version_id === version.id
   const fullCaption = `${version.caption}\n\n${version.cta}\n\n${version.hashtags.join(' ')}`
   return <main className={styles.shell}>
     <header className={styles.detailTopbar}>
@@ -33,13 +35,13 @@ export default function ContentStudioDetail({ content, notice }: { content: Stud
     <section className={styles.reviewLayout}>
       <div className={styles.artworkWall}>
         <header><p>Preview final</p><span>{content.format.width} × {content.format.height}px · logo master</span></header>
-        <div className={styles.artworkGrid}>{version.pages.map((page) => <figure key={page.id}><Image src={`/admin/content-studio/assets/${version.id}/${page.page_number}`} alt={page.alt_text} width={content.format.width} height={content.format.height} unoptimized /><figcaption>Página {String(page.page_number).padStart(2, '0')} <a href={`/admin/content-studio/assets/${version.id}/${page.page_number}`} download>Baixar PNG</a></figcaption></figure>)}</div>
+        <div className={styles.artworkGrid}>{version.pages.map((page) => <figure key={page.id}><Image src={`/admin/content-studio/assets/${version.id}/${page.page_number}`} alt={page.alt_text} width={content.format.width} height={content.format.height} unoptimized /><figcaption>Página {String(page.page_number).padStart(2, '0')} {currentIsApproved ? <a href={`/admin/content-studio/assets/${version.id}/${page.page_number}`} download>Baixar PNG</a> : <span>Preview protegido</span>}</figcaption></figure>)}</div>
       </div>
 
       <aside className={styles.approvalRail}>
         <section><p>Decisão</p><form action={approveContentAction}><input type="hidden" name="contentId" value={content.id} /><button className={styles.approveButton} disabled={content.status === 'archived'}>Aprovar versão v{version.version_number}</button></form>
           <details><summary>Reprovar e refazer</summary><form action={rejectContentAction}><input type="hidden" name="contentId" value={content.id} /><label>Motivo<select name="reasonCode" required defaultValue=""><option value="" disabled>Selecione</option>{REJECTION_REASONS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label><label>Orientação ao agente<textarea name="guidance" required placeholder="O que precisa mudar?" /></label><button className={styles.rejectButton}>Registrar reprovação</button></form></details>
-          {content.approved_version_id ? <form action="/admin/content-studio/export" method="post"><input type="hidden" name="contentId" value={content.id} /><button className={styles.exportButton}>Exportar pacote aprovado</button></form> : <small>A exportação será liberada após aprovação.</small>}
+          {content.approved_version_id ? <><form action="/admin/content-studio/export" method="post"><input type="hidden" name="contentId" value={content.id} /><button className={styles.exportButton}>Exportar pacote aprovado</button></form><a className={styles.textDownload} href={`/admin/content-studio/text/${content.id}`}>Baixar TXT aprovado</a></> : <small>A exportação será liberada após aprovação.</small>}
         </section>
         <section className={styles.guardrail}><strong>Gate humano ativo</strong><p>Este Studio não possui credenciais de redes sociais nem ação de publicação.</p></section>
       </aside>
@@ -52,6 +54,19 @@ export default function ContentStudioDetail({ content, notice }: { content: Stud
       <article><header><p>Hashtags</p><CopyButton value={version.hashtags.join(' ')} /></header><span>{version.hashtags.join(' ')}</span></article>
       <CopyButton value={fullCaption} label="Copiar publicação completa" />
     </section>
+
+    <section className={styles.rulesPanel}>
+      <article><p>Regras editoriais aplicadas</p><ul><li>Identidade oficial zafi-logo-master-v1 e paleta aprovada.</li><li>Tom acolhedor, simples, educativo e não julgador.</li><li>Sem promessa de crédito, desconto, score ou resultado financeiro.</li><li>Aprovação humana obrigatória antes da exportação.</li></ul></article>
+      <article><p>Fontes registradas</p>{version.sources.length ? <ul>{version.sources.map((source) => <li key={`${source.url}-${source.title}`}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><span>{source.publisher}{source.consulted_at ? ` · consulta em ${source.consulted_at}` : ''}</span></li>)}</ul> : <span>Conteúdo educativo sem dado legal, econômico ou estatístico externo.</span>}</article>
+    </section>
+
+    {previousVersion && <section className={styles.comparisonPanel}>
+      <header><p>Comparação de versões</p><h2>O que mudou da v{previousVersion.version_number} para a v{version.version_number}</h2></header>
+      <div className={styles.versionCompare}>
+        <article><div><b>Anterior · v{previousVersion.version_number}</b><span>{STATUS_LABELS[previousVersion.status]}</span></div>{previousVersion.pages[0] && <Image src={`/admin/content-studio/assets/${previousVersion.id}/${previousVersion.pages[0].page_number}`} alt={previousVersion.pages[0].alt_text} width={content.format.width} height={content.format.height} unoptimized />}<p>{previousVersion.art_text}</p><small>{previousVersion.change_summary ?? 'Versão anterior preservada.'}</small></article>
+        <article><div><b>Atual · v{version.version_number}</b><span>{STATUS_LABELS[version.status]}</span></div>{version.pages[0] && <Image src={`/admin/content-studio/assets/${version.id}/${version.pages[0].page_number}`} alt={version.pages[0].alt_text} width={content.format.width} height={content.format.height} unoptimized />}<p>{version.art_text}</p><small>{version.change_summary ?? 'Versão atual.'}</small></article>
+      </div>
+    </section>}
 
     <section className={styles.editorPanel}>
       <header><p>Editar sem sobrescrever</p><h2>Criar nova versão</h2></header>

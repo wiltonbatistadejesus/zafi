@@ -53,10 +53,13 @@ export default function ContentStudioDashboard({ dashboard, filters, notice }: {
     <form id="bulk-content-action" action={bulkContentAction}>
       <section className={styles.bulkBar}>
         <div><strong>Ações em lote</strong><span>Selecione as peças na biblioteca.</span></div>
-        <select name="bulkAction" required defaultValue=""><option value="" disabled>Escolha uma ação</option><option value="approve">Aprovar</option><option value="reject">Reprovar e refazer</option><option value="archive">Arquivar</option></select>
+        <select name="bulkAction" defaultValue=""><option value="" disabled>Escolha uma ação</option><option value="approve">Aprovar</option><option value="reject">Reprovar e refazer</option><option value="archive">Arquivar</option></select>
         <select name="reasonCode" defaultValue=""><option value="">Motivo se reprovar</option>{REJECTION_REASONS.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select>
         <input name="guidance" placeholder="Orientação opcional" />
-        <button type="submit">Executar</button>
+        <div className={styles.bulkButtons}>
+          <button type="submit">Executar</button>
+          <button type="submit" formAction="/admin/content-studio/export" formMethod="post" className={styles.bulkExport}>Exportar aprovados</button>
+        </div>
       </section>
 
     </form>

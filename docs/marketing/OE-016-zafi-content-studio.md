@@ -35,11 +35,15 @@ O Content Factory anterior foi descontinuado como painel paralelo. Sua rota agor
 - busca e filtros por status, rede, categoria, formato e período;
 - tela individual de revisão;
 - download individual de PNG;
+- download individual do TXT completo da versão aprovada;
 - cópia de texto da arte, legenda, CTA, hashtags e publicação completa;
 - aprovação, reprovação, refação, edição e arquivamento individual;
 - aprovação, reprovação e arquivamento em lote;
-- exportação individual ou em lote de versões aprovadas;
+- exportação individual ou em lote de versões aprovadas diretamente pela seleção da biblioteca;
 - histórico de versões, pareceres e eventos de auditoria;
+- comparação visual entre a versão atual e a imediatamente anterior;
+- fontes consultadas e regras editoriais exibidas no detalhe;
+- auditoria em lote vinculada à nova versão criada após refação;
 - acesso exclusivo do CEO;
 - layout responsivo para desktop e celular;
 - identidade visual oficial da Zafi aplicada ao painel e às artes.
@@ -86,7 +90,7 @@ Controles aplicados:
 
 - build Next.js de produção: aprovado;
 - TypeScript: aprovado;
-- 51 rotas compiladas;
+- 52 rotas compiladas, incluindo a exportação TXT autenticada;
 - rota `/admin/content-studio`: compilada como dinâmica;
 - rota de detalhe: aprovada;
 - renderizador de arte: aprovado;

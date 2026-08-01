@@ -100,13 +100,14 @@ export async function bulkContentAction(formData: FormData) {
 
   for (const contentId of ids) {
     const content = await getStudioContent(contentId)
+    let outcomeVersionId = content.current_version_id
     if (action === 'approve') await approveStudioContent(contentId, session)
     if (action === 'archive') await archiveStudioContent(contentId, session)
     if (action === 'reject') {
       const revision = regenerateContent(content, reasonCode, guidance)
-      await rejectAndRegenerateStudioContent({ contentId, reasonCode, guidance, ...revision, session })
+      outcomeVersionId = await rejectAndRegenerateStudioContent({ contentId, reasonCode, guidance, ...revision, session })
     }
-    outcomes.push({ contentId, versionId: content.current_version_id, outcome: 'completed' })
+    outcomes.push({ contentId, versionId: outcomeVersionId, outcome: 'completed' })
   }
 
   await recordBulkAction({ action, contentIds: ids, reasonCode, guidance, session, outcomes })
