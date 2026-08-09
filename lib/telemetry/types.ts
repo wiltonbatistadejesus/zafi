@@ -224,6 +224,19 @@ export type Ga4IntegrationStatus = {
   last_confirmation_at: string | null
 }
 
+export type ActionpayPhaseBSnapshot = {
+  generated_at: string
+  postback_status: 'prepared_not_activated' | 'active'
+  token_rotation_status: 'awaiting_ceo_authorization' | 'authorized' | 'executing' | 'completed' | 'rolled_back' | 'not_planned'
+  clicks_total: number
+  created_count: number
+  approved_count: number
+  rejected_count: number
+  paid_count: number
+  revenue_created: RevenueAmount[]
+  revenue_approved: RevenueAmount[]
+  revenue_paid: RevenueAmount[]
+}
 export type AffiliateConversion = {
   id: string
   transaction_id: string

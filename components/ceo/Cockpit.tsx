@@ -206,8 +206,9 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         </Card>
 
         <Card className={styles.attribution}>
-          <SectionHeading icon="funnel" eyebrow="OE-004 · Atribuição" title="Da decisão ao resultado financeiro" aside={<span className={styles.integrationBadge}><StatusDot signal="healthy" /> Snapshots preservados</span>} />
+          <SectionHeading icon="funnel" eyebrow="OE-004 · Atribuição" title="Da decisão ao resultado financeiro" aside={<span className={styles.integrationBadge}><StatusDot signal="attention" /> Postback preparado</span>} />
           <Metrics items={data.attribution.summary} compact />
+          <Metrics items={data.attribution.conversionStates} compact />
           <div className={styles.financeStages}>
             {data.attribution.finance.map((stage, index) => <div key={stage.label}>
               <i>0{index + 1}</i><span><small>{stage.label}</small><strong>{stage.value}</strong><em>{stage.detail}</em></span>

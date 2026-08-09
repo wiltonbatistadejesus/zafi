@@ -1,5 +1,6 @@
 import { getSupabaseClient } from '@/lib/supabase'
-import type { AnalyticsConsent, AttributionCockpitSnapshot, CockpitSnapshot, EventIntelligenceSnapshot, Ga4IntegrationStatus, OperationalMonitorSnapshot, TelemetryEventType } from './types'
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
+import type { ActionpayPhaseBSnapshot, AnalyticsConsent, AttributionCockpitSnapshot, CockpitSnapshot, EventIntelligenceSnapshot, Ga4IntegrationStatus, OperationalMonitorSnapshot, TelemetryEventType } from './types'
 import type { NormalizedActionpayPostback, FlatPostbackPayload } from '@/lib/actionpay/postback'
 import type { PartnerDefinition } from '@/lib/partners'
 
@@ -102,7 +103,7 @@ export async function recordActionpayPostback(input: {
   rawPayloadHash: string
 }) {
   const { normalized } = input
-  const { data, error } = await getSupabaseClient().rpc('affiliate_record_conversion', {
+  const { data, error } = await getSupabaseAdminClient().rpc('affiliate_record_conversion', {
     p_secret: secret(),
     p_request_id: input.requestId,
     p_network: 'actionpay',
@@ -142,7 +143,7 @@ export async function recordActionpayPostbackRejection(input: {
   partnerId?: string | null
   campaignId?: string | null
 }) {
-  const { error } = await getSupabaseClient().rpc('affiliate_record_postback_audit', {
+  const { error } = await getSupabaseAdminClient().rpc('affiliate_record_postback_audit', {
     p_secret: secret(),
     p_request_id: input.requestId,
     p_network: 'actionpay',
@@ -196,6 +197,13 @@ export async function getAttributionCockpitSnapshot(recentLimit = 20): Promise<A
   return data as AttributionCockpitSnapshot
 }
 
+export async function getActionpayPhaseBSnapshot(): Promise<ActionpayPhaseBSnapshot> {
+  const { data, error } = await getSupabaseAdminClient().rpc('actionpay_phase_b_snapshot', {
+    p_secret: secret(),
+  })
+  if (error || !data) throw new Error(`Actionpay phase B snapshot failed: ${error?.message ?? 'empty response'}`)
+  return data as ActionpayPhaseBSnapshot
+}
 export async function getOperationalMonitorSnapshot(windowHours = 24): Promise<OperationalMonitorSnapshot> {
   const { data, error } = await getSupabaseClient().rpc('operational_monitor_latest', {
     p_secret: secret(),

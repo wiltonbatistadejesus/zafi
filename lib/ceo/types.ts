@@ -88,6 +88,7 @@ export type CockpitData = {
   }
   attribution: {
     summary: Metric[]
+    conversionStates: Metric[]
     finance: Metric[]
     topDecisions: Array<{
       id: string

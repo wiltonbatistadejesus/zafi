@@ -1,4 +1,4 @@
-import { getAttributionCockpitSnapshot, getCockpitSnapshot, getEventIntelligenceSnapshot, getGa4IntegrationStatus, getOperationalMonitorSnapshot } from '@/lib/telemetry/server'
+import { getActionpayPhaseBSnapshot, getAttributionCockpitSnapshot, getCockpitSnapshot, getEventIntelligenceSnapshot, getGa4IntegrationStatus, getOperationalMonitorSnapshot } from '@/lib/telemetry/server'
 import type { CockpitSnapshot, RevenueAmount } from '@/lib/telemetry/types'
 import type { CockpitData, Metric, Signal } from './types'
 
@@ -55,11 +55,12 @@ function contentMetrics(snapshot: CockpitSnapshot): Metric[] {
 export type CockpitIntelligenceFilters = { from?: string; to?: string; channel?: string | null; campaign?: string | null; source?: string | null; eventType?: string | null }
 
 export async function getCockpitData(filters: CockpitIntelligenceFilters = {}): Promise<CockpitData> {
-  const [data, attribution, operational, ga4Integration] = await Promise.all([
+  const [data, attribution, operational, ga4Integration, actionpayPhaseB] = await Promise.all([
     getCockpitSnapshot(),
     getAttributionCockpitSnapshot(),
     getOperationalMonitorSnapshot(),
     getGa4IntegrationStatus(),
+    getActionpayPhaseBSnapshot(),
   ])
   let intelligenceAvailable = true
   const intelligence = await getEventIntelligenceSnapshot(filters).catch(() => {
@@ -204,10 +205,17 @@ export async function getCockpitData(filters: CockpitIntelligenceFilters = {}): 
         { label: 'Cobertura de cliques', value: clickCoverage, signal: attribution.affiliate_clicks_total === 0 ? 'neutral' : attribution.affiliate_clicks_total === attribution.clicks_total ? 'healthy' : 'critical', detail: `${number.format(attribution.clicks_total)} de ${number.format(attribution.affiliate_clicks_total)} cliques` },
         { label: 'Cobertura de conversões', value: conversionCoverage, signal: attribution.affiliate_conversions_total === 0 ? 'neutral' : attribution.unattributed_conversions_total === 0 ? 'healthy' : 'attention', detail: `${number.format(attribution.unattributed_conversions_total)} sem atribuição causal` },
       ],
+      conversionStates: [
+        { label: 'Cliques', value: number.format(actionpayPhaseB.clicks_total), detail: 'Interações comerciais persistidas; não são receita' },
+        { label: 'Criadas', value: number.format(actionpayPhaseB.created_count), detail: 'Conversões recebidas e ainda não revertidas' },
+        { label: 'Aprovadas', value: number.format(actionpayPhaseB.approved_count), detail: 'Conversões aceitas pela rede' },
+        { label: 'Rejeitadas', value: number.format(actionpayPhaseB.rejected_count), detail: 'Conversões negadas ou revertidas' },
+        { label: 'Pagas', value: number.format(actionpayPhaseB.paid_count), detail: 'Conversões efetivamente pagas' },
+      ],
       finance: [
-        { label: 'Receita criada', value: revenueLabel(attribution.revenue_created), detail: `${number.format(attribution.created_count)} transação(ões) criada(s)` },
-        { label: 'Receita aprovada', value: revenueLabel(attribution.revenue_approved), detail: `${number.format(attribution.approved_count)} transação(ões) aprovada(s)` },
-        { label: 'Receita paga', value: revenueLabel(attribution.revenue_paid), detail: `${number.format(attribution.paid_count)} transação(ões) paga(s)` },
+        { label: 'Receita criada', value: revenueLabel(actionpayPhaseB.revenue_created), detail: 'Somente com evento financeiro persistido' },
+        { label: 'Receita aprovada', value: revenueLabel(actionpayPhaseB.revenue_approved), detail: 'Somente conversões aprovadas ou pagas' },
+        { label: 'Receita paga', value: revenueLabel(actionpayPhaseB.revenue_paid), detail: 'Somente valores efetivamente pagos' },
       ],
       topDecisions: attribution.top_decisions.map((decision) => ({
         id: `${decision.decision_id}:${decision.currency ?? 'none'}`,

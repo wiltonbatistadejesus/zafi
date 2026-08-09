@@ -1,8 +1,9 @@
-import { createHash, createHmac, timingSafeEqual } from 'crypto'
 import { getPartner, getPartnerByCampaignId, type PartnerDefinition } from '@/lib/partners'
+import { buildActionpayIdempotencyKey, hashActionpayPayload, sanitizeActionpayPayload, verifyActionpayAuthentication } from './security'
+
+export { hashActionpayPayload as hashRawPayload, sanitizeActionpayPayload as sanitizePostbackPayload, verifyActionpayAuthentication } from './security'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-const SENSITIVE_KEYS = new Set(['token', 'secret', 'signature', 'secure', 'key', 'api_key', 'authorization'])
 
 export type FlatPostbackPayload = Record<string, string>
 
@@ -68,35 +69,6 @@ function parseDate(value: string | null): string {
   return date.toISOString()
 }
 
-function canonicalIdempotencyKey(input: Omit<NormalizedActionpayPostback, 'idempotencyKey' | 'partner'>) {
-  const canonical = [
-    'actionpay', input.transactionId, input.status, input.commission ?? '', input.currency ?? '',
-    input.originalClickId ?? '', input.campaignId ?? '', input.eventAt,
-  ].join('|')
-  return createHash('sha256').update(canonical).digest('hex')
-}
-
-function safeEqual(left: string, right: string) {
-  const a = Buffer.from(left)
-  const b = Buffer.from(right)
-  return a.length === b.length && timingSafeEqual(a, b)
-}
-
-export function verifyActionpayAuthentication(options: {
-  token: string | null
-  signature: string | null
-  rawBody: string
-  secret: string
-}) {
-  if (!options.secret) return false
-  if (options.token && safeEqual(options.token, options.secret)) return true
-  if (!options.signature) return false
-  const supplied = options.signature.replace(/^sha256=/i, '').toLowerCase()
-  if (!/^[a-f0-9]{64}$/.test(supplied)) return false
-  const expected = createHmac('sha256', options.secret).update(options.rawBody).digest('hex')
-  return safeEqual(supplied, expected)
-}
-
 export function parsePostbackBody(rawBody: string, contentType: string | null): FlatPostbackPayload {
   if (!rawBody) return {}
   if (rawBody.length > 32_768) throw new PostbackValidationError('Payload excede 32 KB.', 413)
@@ -112,31 +84,20 @@ export function parsePostbackBody(rawBody: string, contentType: string | null): 
   return Object.fromEntries(Array.from(params.entries()).map(([key, value]) => [key.toLowerCase(), value]))
 }
 
-export function sanitizePostbackPayload(payload: FlatPostbackPayload): FlatPostbackPayload {
-  return Object.fromEntries(Object.entries(payload).map(([key, value]) => [
-    key,
-    SENSITIVE_KEYS.has(key.toLowerCase()) ? '[REDACTED]' : value.slice(0, 4096),
-  ]))
-}
-
-export function hashRawPayload(rawBody: string, queryString: string) {
-  return createHash('sha256').update(`${queryString}\n${rawBody}`).digest('hex')
-}
-
 export async function normalizeActionpayPostback(payload: FlatPostbackPayload): Promise<NormalizedActionpayPostback> {
   const transactionId = first(payload, ['transaction_id', 'uniqueid', 'transaction', 'action_id', 'actionid', 'order_id', 'orderid', 'tid'])
   if (!transactionId || transactionId.length > 200) throw new PostbackValidationError('Identificador da transação ausente ou inválido.')
 
   const clickCandidate = first(payload, ['click_id', 'clickid', 'subaccount', 'subid', 'subid1', 'subit1'])
-  const originalClickId = clickCandidate && UUID.test(clickCandidate) ? clickCandidate : null
-  if (clickCandidate && !originalClickId) throw new PostbackValidationError('Identificador do clique inválido.')
+  if (!clickCandidate) throw new PostbackValidationError('Identificador do clique original ausente.')
+  const originalClickId = UUID.test(clickCandidate) ? clickCandidate : null
+  if (!originalClickId) throw new PostbackValidationError('Identificador do clique inválido.')
 
   const campaignId = first(payload, ['campaign_id', 'campaignid', 'offer_id', 'offerid', 'offer', 'apid'])
   const explicitPartnerId = first(payload, ['partner_id', 'partnerid'])
   const partner = (campaignId ? await getPartnerByCampaignId(campaignId) : undefined)
     ?? (explicitPartnerId ? await getPartner(explicitPartnerId) : undefined)
     ?? null
-  if (!originalClickId && !partner) throw new PostbackValidationError('Não foi possível identificar o clique, parceiro ou campanha.')
 
   const status = parseStatus(first(payload, ['status', 'event', 'action_status', 'actionstatus', 'state']))
   const commission = parseMoney(first(payload, ['commission', 'payment', 'payout', 'sum', 'amount']))
@@ -166,6 +127,6 @@ export async function normalizeActionpayPostback(payload: FlatPostbackPayload): 
   return {
     ...normalizedWithoutKey,
     partner,
-    idempotencyKey: canonicalIdempotencyKey(normalizedWithoutKey),
+    idempotencyKey: buildActionpayIdempotencyKey({ ...normalizedWithoutKey, originalClickId }),
   }
 }

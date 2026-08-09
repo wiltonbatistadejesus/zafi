@@ -30,6 +30,10 @@ async function handle(request: NextRequest) {
   const startedAt = Date.now()
   const requestId = request.headers.get('x-vercel-id') ?? crypto.randomUUID()
   const route = ROUTE
+  if (process.env.ACTIONPAY_POSTBACK_ENABLED !== 'true') {
+    log('info', { level: 'info', message: 'actionpay_postback_prepared_not_activated', route, requestId, ms: Date.now() - startedAt })
+    return NextResponse.json({ ok: false, error: 'Postback not activated', requestId }, { status: 503 })
+  }
   const rawBody = request.method === 'GET' ? '' : await request.text()
   const query = flatQuery(request)
   let body: FlatPostbackPayload = {}
