@@ -1,6 +1,11 @@
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import { getGitHubHealth } from './github'
 import { buildIntegrationHealth, getVercelHealth } from './integrations'
+import {
+  getActionpayIntegrationSnapshot,
+  getMetaExecutiveSnapshot,
+  metaConfigurationStatus,
+} from '@/lib/meta/server'
 import type {
   AlertSignal,
   ExecutiveAlert,
@@ -204,7 +209,11 @@ export async function getExecutiveSnapshot(period: ExecutivePeriod): Promise<Exe
       day: item.day || metric_day || '',
     })),
   }
-  const github = await getGitHubHealth(raw.period.from, raw.period.to)
+  const [github, meta, actionpay] = await Promise.all([
+    getGitHubHealth(raw.period.from, raw.period.to),
+    getMetaExecutiveSnapshot({ from: period.from, to: period.to }),
+    getActionpayIntegrationSnapshot(),
+  ])
   const criticalBugs = (raw.monitor.diagnostics ?? [])
     .filter((item) => item.severity === 'critical')
     .reduce((total, item) => total + Number(item.count || 0), 0)
@@ -216,10 +225,12 @@ export async function getExecutiveSnapshot(period: ExecutivePeriod): Promise<Exe
         : 'healthy'
 
   const vercel = getVercelHealth()
-  const dataHealth = buildIntegrationHealth(raw, github)
+  const dataHealth = buildIntegrationHealth(raw, github, meta, actionpay, metaConfigurationStatus())
 
   return {
     ...raw,
+    meta,
+    actionpay,
     engineering: { ...raw.engineering, github, criticalBugs, overall },
     alerts: buildAlerts(raw),
     dataHealth,

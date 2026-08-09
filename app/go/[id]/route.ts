@@ -52,6 +52,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     affiliate_click_id: affiliateClickId,
     destination_url: destination,
     traffic_campaign: (query.get('campaign') || '').slice(0, 200),
+    attribution: {
+      fbclid: (query.get('fbclid') || '').slice(0, 500),
+      meta_campaign_id: (query.get('meta_campaign_id') || '').slice(0, 100),
+      meta_adset_id: (query.get('meta_adset_id') || '').slice(0, 100),
+      meta_ad_id: (query.get('meta_ad_id') || '').slice(0, 100),
+      meta_form_id: (query.get('meta_form_id') || '').slice(0, 100),
+    },
     campaign: {
       utm_source: source,
       utm_medium: (query.get('medium') || '').slice(0, 200),

@@ -4,7 +4,7 @@ const VISITOR_KEY = 'zafi_visitor_id'
 const SESSION_KEY = 'zafi_session_id'
 const CONSENT_KEY = 'zafi_analytics_consent'
 const STARTED_AT_KEY = 'zafi_analysis_started_at'
-const CAMPAIGN_CONTEXT_KEY = 'zafi_campaign_context_v1'
+const CAMPAIGN_CONTEXT_KEY = 'zafi_campaign_context_v2'
 
 function stableId(storage: Storage, key: string) {
   const existing = storage.getItem(key)
@@ -28,35 +28,71 @@ export function getAnalyticsConsent(): AnalyticsConsent {
 
 function trafficContext() {
   const params = new URLSearchParams(window.location.search)
+  const campaignKeys = [
+    'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
+    'utm_id', 'utm_source_platform',
+  ] as const
   const liveCampaign = Object.fromEntries(
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']
+    campaignKeys
       .map((key) => [key, params.get(key)?.slice(0, 200) ?? ''])
       .filter(([, value]) => Boolean(value))
-  )
+  ) as Record<(typeof campaignKeys)[number], string>
+  const attribution = {
+    fbclid: params.get('fbclid')?.slice(0, 500) || '',
+    meta_campaign_id: (params.get('meta_campaign_id') || params.get('campaign_id') || '').slice(0, 100),
+    meta_adset_id: (params.get('meta_adset_id') || params.get('adset_id') || '').slice(0, 100),
+    meta_ad_id: (params.get('meta_ad_id') || params.get('ad_id') || '').slice(0, 100),
+    meta_form_id: (params.get('meta_form_id') || params.get('form_id') || '').slice(0, 100),
+  }
   const referrer = document.referrer.slice(0, 1000)
-  let source = 'direct'
-
-  if (liveCampaign.utm_source) source = liveCampaign.utm_source
-  else if (referrer) {
-    try {
-      const host = new URL(referrer).hostname.toLowerCase()
-      if (/google|bing|yahoo|duckduckgo/.test(host)) source = 'organic'
-      else if (/facebook|instagram|linkedin|tiktok|youtube|x\.com|twitter/.test(host)) source = 'social'
-      else if (host !== window.location.hostname) source = 'referral'
-    } catch {
-      source = 'referral'
-    }
+  let referrerHost = ''
+  if (referrer) {
+    try { referrerHost = new URL(referrer).hostname.toLowerCase() } catch { referrerHost = '' }
   }
 
-  const live = { source, campaign: liveCampaign, referrer, capturedAt: new Date().toISOString() }
-  if (Object.keys(liveCampaign).length || source !== 'direct') {
+  const rawSource = (liveCampaign.utm_source || '').toLowerCase()
+  const medium = (liveCampaign.utm_medium || '').toLowerCase()
+  const explicitlyPaid = /(^|_)(paid|ads?|cpc|ppc)(_|$)/.test(medium)
+  const explicitlyOrganic = /(^|_)(organic|organic_social|social_organic)(_|$)/.test(medium)
+  let source = 'direct'
+  if (/instagram/.test(rawSource)) source = explicitlyPaid ? 'instagram_ads' : explicitlyOrganic ? 'instagram_organic' : 'meta'
+  else if (/facebook|^fb$/.test(rawSource)) source = explicitlyPaid ? 'facebook_ads' : explicitlyOrganic ? 'facebook_organic' : 'meta'
+  else if (/meta/.test(rawSource)) source = explicitlyPaid ? 'meta_ads' : explicitlyOrganic ? 'meta_organic' : 'meta'
+  else if (rawSource) source = rawSource
+  else if (attribution.fbclid) source = 'meta'
+  else if (referrerHost) {
+    if (/instagram/.test(referrerHost)) source = 'instagram_organic'
+    else if (/facebook|fb\.com/.test(referrerHost)) source = 'facebook_organic'
+    else if (/google/.test(referrerHost)) source = 'google'
+    else if (/bing|yahoo|duckduckgo/.test(referrerHost)) source = 'organic'
+    else if (/linkedin|tiktok|youtube|x\.com|twitter/.test(referrerHost)) source = 'social'
+    else if (referrerHost !== window.location.hostname) source = 'referral'
+  }
+
+  const live = {
+    source,
+    channel: source,
+    campaign: liveCampaign,
+    attribution,
+    referrer,
+    referrerHost,
+    capturedAt: new Date().toISOString(),
+  }
+  const hasAttribution = Object.values(attribution).some(Boolean)
+  if (Object.keys(liveCampaign).length || hasAttribution || source !== 'direct') {
     window.sessionStorage.setItem(CAMPAIGN_CONTEXT_KEY, JSON.stringify(live))
     return live
   }
 
   try {
     const stored = JSON.parse(window.sessionStorage.getItem(CAMPAIGN_CONTEXT_KEY) ?? 'null') as typeof live | null
-    if (stored?.source && stored.campaign && typeof stored.campaign === 'object') return stored
+    if (
+      stored?.source
+      && stored.campaign
+      && typeof stored.campaign === 'object'
+      && stored.attribution
+      && typeof stored.attribution === 'object'
+    ) return stored
   } catch {
     window.sessionStorage.removeItem(CAMPAIGN_CONTEXT_KEY)
   }
@@ -115,7 +151,15 @@ export async function trackTelemetryEvent(
         timezone: time.timezone,
       },
       campaign: traffic.campaign,
-      payload: { ...payload, referrer: traffic.referrer, campaign: traffic.campaign, channel: traffic.campaign.utm_medium || traffic.source, event_time: time },
+      payload: {
+        ...payload,
+        referrer: traffic.referrer,
+        referrer_host: String(traffic.referrerHost || '').slice(0, 300),
+        campaign: traffic.campaign,
+        attribution: traffic.attribution,
+        channel: traffic.channel,
+        event_time: time,
+      },
       schemaVersion: 1,
     }),
   })
@@ -219,6 +263,11 @@ export function buildPartnerTrackingUrl(path: string) {
   if (campaign) url.searchParams.set('campaign', campaign)
   if (traffic.campaign.utm_medium) url.searchParams.set('medium', traffic.campaign.utm_medium)
   if (traffic.campaign.utm_content) url.searchParams.set('content', traffic.campaign.utm_content)
+  if (traffic.attribution.fbclid) url.searchParams.set('fbclid', traffic.attribution.fbclid)
+  if (traffic.attribution.meta_campaign_id) url.searchParams.set('meta_campaign_id', traffic.attribution.meta_campaign_id)
+  if (traffic.attribution.meta_adset_id) url.searchParams.set('meta_adset_id', traffic.attribution.meta_adset_id)
+  if (traffic.attribution.meta_ad_id) url.searchParams.set('meta_ad_id', traffic.attribution.meta_ad_id)
+  if (traffic.attribution.meta_form_id) url.searchParams.set('meta_form_id', traffic.attribution.meta_form_id)
   if (new URLSearchParams(window.location.search).get('zafi_ga_debug') === '1') url.searchParams.set('debug', '1')
   return `${url.pathname}${url.search}`
 }

@@ -1,3 +1,5 @@
+import type { ActionpayIntegrationSnapshot, MetaExecutiveSnapshot } from '@/lib/meta/types'
+
 export type ComparisonMetrics = {
   visitors: number
   sessions: number
@@ -88,6 +90,8 @@ export type ExecutiveSnapshot = ExecutiveSnapshotRaw & {
     criticalBugs: number
     overall: 'healthy' | 'attention' | 'critical'
   }
+  meta: MetaExecutiveSnapshot
+  actionpay: ActionpayIntegrationSnapshot
   alerts: ExecutiveAlert[]
   dataHealth: DataHealthItem[]
   integrations: { vercel: DataHealthItem }

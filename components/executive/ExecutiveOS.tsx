@@ -25,6 +25,12 @@ const sourceLabels: Record<string, string> = {
   social: 'Social',
   referral: 'Referral',
   meta: 'Meta',
+  meta_ads: 'Meta Ads',
+  meta_organic: 'Meta orgânico',
+  facebook_ads: 'Facebook Ads',
+  instagram_ads: 'Instagram Ads',
+  facebook_organic: 'Facebook orgânico',
+  instagram_organic: 'Instagram orgânico',
   google: 'Google',
   origem_desconhecida: 'Origem desconhecida',
 }
@@ -247,14 +253,30 @@ export default function ExecutiveOS({ data, preset }: { data: ExecutiveSnapshot;
         </Section>
 
         <Section eyebrow="03 · Marketing" title="Origem e campanhas">
-          <div className={styles.sourceGrid}>{['organic','direct','meta','google','social','referral'].map((source) => {
+          <div className={styles.sourceGrid}>{['facebook_ads','instagram_ads','facebook_organic','instagram_organic','meta_ads','meta_organic','google','organic','direct','social','referral'].map((source) => {
             const item = data.marketing.origins.find((origin) => origin.source === source)
             return <div key={source}><span>{sourceLabels[source]}</span><strong>{integer.format(item?.visitors ?? 0)}</strong><small>{integer.format(item?.leads ?? 0)} lead(s)</small></div>
           })}</div>
           <div className={styles.rankList}><h3>Campanhas ativas no período</h3>{data.marketing.campaigns.length ? data.marketing.campaigns.slice(0, 6).map((item, index) => <div key={item.campaign + item.medium}><i>{String(index + 1).padStart(2, '0')}</i><span>{item.campaign}<small>{item.medium}</small></span><strong>{integer.format(item.visitors)}</strong></div>) : <p>Nenhuma campanha atribuída no período.</p>}</div>
-          <div className={styles.inlineNotice}>Custo por lead: <strong>Não conectado</strong></div>
+          <div className={styles.inlineNotice}>Custo por lead Meta: <strong>{data.meta.metrics.acquisition_cpl === null ? 'Dados insuficientes' : money.format(Number(data.meta.metrics.acquisition_cpl))}</strong></div>
         </Section>
 
+        <Section eyebrow="Meta · aquisição paga" title="Investimento e Lead Ads" className={styles.wide}>
+          <div className={styles.metricGrid}>
+            <Metric label={'Gasto (' + data.meta.metrics.currency + ')'} current={data.meta.metrics.spend} format="money" />
+            <Metric label="Alcance" current={data.meta.metrics.reach} />
+            <Metric label="Impressões" current={data.meta.metrics.impressions} />
+            <Metric label="Cliques" current={data.meta.metrics.clicks} />
+            <Metric label="Cliques no link" current={data.meta.metrics.inline_link_clicks} />
+            <Metric label="Leads recebidos" current={data.meta.metrics.captured_leads} />
+            <Metric label="CTR" current={data.meta.metrics.ctr} format="percent" />
+            <Metric label="CPC" current={data.meta.metrics.cpc} format="money" />
+            <Metric label="CPM" current={data.meta.metrics.cpm} format="money" />
+            <Metric label="CPL de aquisição" current={data.meta.metrics.acquisition_cpl} format="money" />
+          </div>
+          <div className={styles.rankList}><h3>Campanhas Meta no período</h3>{data.meta.campaigns.length ? data.meta.campaigns.slice(0, 8).map((item, index) => <div key={item.meta_campaign_id || item.name}><i>{String(index + 1).padStart(2, '0')}</i><span>{item.name}<small>{integer.format(item.impressions)} impressões · {integer.format(item.reported_leads)} lead(s)</small></span><strong>{money.format(Number(item.spend))}</strong></div>) : <p>{data.meta.connection.status === 'not_configured' ? 'Meta ainda não conectada.' : 'Nenhuma campanha com dados no período.'}</p>}</div>
+          <div className={styles.inlineNotice}>Alcance: <strong>{data.meta.metrics.reach_quality === 'exact_range' ? 'período exato' : 'indisponível para este recorte'}</strong>. Lead Meta e clique não são receita.</div>
+        </Section>
         <Section eyebrow="04 · Engenharia" title="Entrega e bloqueios">
           <div className={styles.sprintSummary}>
             <div><span>Sprint atual</span><strong>{data.engineering.sprint.code}</strong><small>{data.engineering.sprint.title}</small></div>
@@ -283,6 +305,18 @@ export default function ExecutiveOS({ data, preset }: { data: ExecutiveSnapshot;
             <Metric label="Receita criada" current={finance.revenue_created} format="money" />
             <Metric label="Receita paga" current={finance.revenue_paid} format="money" />
           </div>
+        </Section>
+
+        <Section eyebrow="Actionpay · monetização" title="Fonte 359422 e campanhas" className={styles.wide}>
+          <div className={styles.metricGrid}>
+            <Metric label="Campanhas aptas" current={data.actionpay.summary.commercial_ready} />
+            <Metric label="Confirmação pendente" current={data.actionpay.summary.pending_confirmation} />
+            <Metric label="Campanhas bloqueadas" current={data.actionpay.summary.blocked_commercial} />
+            <Metric label="Modelo CPL confirmado" current={data.actionpay.summary.cpl} />
+            <Metric label="Modelo CPA confirmado" current={data.actionpay.summary.cpa} />
+          </div>
+          <div className={styles.rankList}><h3>Auditoria comercial</h3>{data.actionpay.campaigns.length ? data.actionpay.campaigns.map((item, index) => <div key={item.partner_id + item.campaign_id}><i>{String(index + 1).padStart(2, '0')}</i><span>{item.partner_name}<small>{item.campaign_name} · {item.model || 'modelo pendente'} · {item.commercial_status}</small></span><strong>{item.link_https && item.source_id_valid ? 'Link válido' : 'Revisar link'}</strong></div>) : <p>Nenhuma campanha Actionpay cadastrada.</p>}</div>
+          <div className={styles.inlineNotice}>Domínio da fonte: <strong>{data.actionpay.source.validation_status === 'validated' ? 'validado' : 'aguardando evidência oficial'}</strong>. Receita somente após postback.</div>
         </Section>
 
         <Section eyebrow="Funil principal" title="Da visita à compra" className={styles.full}>
