@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { getSupabaseClient } from '@/lib/supabase'
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 import type { RecommendationResult } from './types'
 
 function secret() {
@@ -19,7 +20,7 @@ export async function runRecommendation(input: { visitorId: string; sessionId: s
   if (error || !data) throw new Error(`Recommendation engine failed: ${error?.message ?? 'empty response'}`)
 
   const base = data as RecommendationResult
-  const { data: governed, error: governanceError } = await getSupabaseClient().rpc('recommendation_apply_traffic_policy', {
+  const { data: governed, error: governanceError } = await getSupabaseAdminClient().rpc('recommendation_apply_traffic_policy', {
     p_secret: secret(),
     p_run_id: base.runId,
   })

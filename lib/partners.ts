@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { getSupabaseClient } from '@/lib/supabase'
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export type PartnerDefinition = {
   id: string
@@ -55,7 +56,7 @@ export async function checkPartnerTrafficEligibility(input: {
   source: string
   medium: string
 }) {
-  const { data, error } = await getSupabaseClient().rpc('atlas_check_campaign_traffic', {
+  const { data, error } = await getSupabaseAdminClient().rpc('atlas_check_campaign_traffic', {
     p_secret: secret(),
     p_campaign_id: input.campaignId,
     p_session_id: input.sessionId,
