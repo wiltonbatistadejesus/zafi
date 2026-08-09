@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getTrackedAffiliateLink } from '@/lib/partner-links.server'
-import { getPartner, type PartnerDefinition } from '@/lib/partners'
+import { checkPartnerTrafficEligibility, getPartner, type PartnerDefinition } from '@/lib/partners'
 import { recordAffiliateClick, recordPartnerClick } from '@/lib/telemetry/server'
 import type { AnalyticsConsent } from '@/lib/telemetry/types'
 
@@ -21,8 +21,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
   if (!partner) return NextResponse.redirect(new URL('/', request.url))
 
-  const affiliateClickId = crypto.randomUUID()
-  const destination = getTrackedAffiliateLink(partner, affiliateClickId)
   if (!partner.active) {
     return NextResponse.json({ error: 'Parceiro temporariamente indisponível.' }, { status: 410 })
   }
@@ -39,8 +37,39 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ error: 'Contexto de atribuição ausente. Volte à Zafi e tente novamente.' }, { status: 400 })
   }
 
-  const sourcePage = (query.get('page') || request.headers.get('referer') || '/').slice(0, 2048)
   const source = (query.get('source') || 'direct').slice(0, 200)
+  const medium = (query.get('medium') || '').slice(0, 200)
+  try {
+    const trafficPolicy = await checkPartnerTrafficEligibility({
+      campaignId: partner.campaignId,
+      sessionId,
+      visitorId,
+      source,
+      medium,
+    })
+    if (!trafficPolicy.allowed) {
+      console.warn(JSON.stringify({
+        level: 'warn', message: 'partner_traffic_blocked', route: '/go/[id]', requestId,
+        partnerId: partner.id, campaignId: partner.campaignId,
+        originGroup: trafficPolicy.traffic?.originGroup ?? 'unknown', code: trafficPolicy.code,
+      }))
+      return NextResponse.json({
+        error: 'Esta opção não está disponível para a origem desta visita. Volte à Zafi para ver outras orientações.',
+        code: trafficPolicy.code,
+      }, { status: 403 })
+    }
+  } catch (error) {
+    console.error(JSON.stringify({
+      level: 'error', message: 'partner_traffic_policy_failed', route: '/go/[id]', requestId,
+      partnerId: partner.id, campaignId: partner.campaignId,
+      error: error instanceof Error ? error.message : String(error),
+    }))
+    return NextResponse.json({ error: 'Não foi possível validar esta opção com segurança.' }, { status: 503 })
+  }
+
+  const affiliateClickId = crypto.randomUUID()
+  const destination = getTrackedAffiliateLink(partner, affiliateClickId)
+  const sourcePage = (query.get('page') || request.headers.get('referer') || '/').slice(0, 2048)
   const occurredAt = new Date()
   const localParts = Object.fromEntries(new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).formatToParts(occurredAt).map((part) => [part.type, part.value]))
   const payload = {
@@ -61,11 +90,11 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     },
     campaign: {
       utm_source: source,
-      utm_medium: (query.get('medium') || '').slice(0, 200),
+      utm_medium: medium,
       utm_campaign: (query.get('campaign') || '').slice(0, 200),
       utm_content: (query.get('content') || '').slice(0, 200),
     },
-    channel: (query.get('medium') || source || 'direct').slice(0, 200),
+    channel: (medium || source || 'direct').slice(0, 200),
     event_time: {
       timezone: 'America/Sao_Paulo',
       local_date: [localParts.year, localParts.month, localParts.day].join('-'),

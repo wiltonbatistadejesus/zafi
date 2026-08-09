@@ -17,6 +17,14 @@ export type PartnerDefinition = {
   note?: string | null
 }
 
+export type PartnerTrafficEligibility = {
+  allowed: boolean
+  code: 'traffic_origin_allowed' | 'traffic_origin_blocked' | 'traffic_origin_not_allowed' | 'campaign_not_found'
+  reason: string
+  traffic?: { source: string; medium: string; originGroup: string }
+  matchedRules?: Array<{ ruleId: string; key: string; effect: 'allow' | 'block'; reason: string }>
+}
+
 function secret() {
   const value = process.env.TELEMETRY_SERVER_SECRET
   if (!value) throw new Error('TELEMETRY_SERVER_SECRET is not configured')
@@ -39,4 +47,22 @@ export function getPartner(id: string) {
 
 export function getPartnerByCampaignId(campaignId: string) {
   return resolvePartner(null, campaignId)
+}
+export async function checkPartnerTrafficEligibility(input: {
+  campaignId: string
+  sessionId: string
+  visitorId: string
+  source: string
+  medium: string
+}) {
+  const { data, error } = await getSupabaseClient().rpc('atlas_check_campaign_traffic', {
+    p_secret: secret(),
+    p_campaign_id: input.campaignId,
+    p_session_id: input.sessionId,
+    p_visitor_id: input.visitorId,
+    p_source: input.source,
+    p_medium: input.medium,
+  })
+  if (error || !data) throw new Error(`Atlas traffic policy unavailable: ${error?.message ?? 'empty response'}`)
+  return data as PartnerTrafficEligibility
 }

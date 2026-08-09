@@ -17,7 +17,16 @@ export async function runRecommendation(input: { visitorId: string; sessionId: s
     p_page_route: input.pageRoute,
   })
   if (error || !data) throw new Error(`Recommendation engine failed: ${error?.message ?? 'empty response'}`)
-  return data as RecommendationResult
+
+  const base = data as RecommendationResult
+  const { data: governed, error: governanceError } = await getSupabaseClient().rpc('recommendation_apply_traffic_policy', {
+    p_secret: secret(),
+    p_run_id: base.runId,
+  })
+  if (governanceError || !governed) {
+    throw new Error(`Recommendation traffic policy failed: ${governanceError?.message ?? 'empty response'}`)
+  }
+  return governed as RecommendationResult
 }
 
 export async function recordRecommendationImpressions(input: {

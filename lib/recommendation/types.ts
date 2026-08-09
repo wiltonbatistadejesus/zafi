@@ -57,6 +57,7 @@ export type RecommendationResult = {
   schemaVersion: number
   runId: string
   engineVersion: string
+  trafficPolicyVersion?: string
   atlasVersion: string
   generatedAt: string
   reused: boolean
@@ -66,6 +67,7 @@ export type RecommendationResult = {
     intelligenceVersion: string | null
     intelligenceCalculatedAt: string | null
     attributes: Record<string, unknown>
+    traffic?: { source: string; medium: string; originGroup: string }
   }
   recommendations: RecommendationDecision[]
   exclusions: RecommendationDecision[]
