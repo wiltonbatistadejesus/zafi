@@ -198,6 +198,8 @@ export async function getCockpitData(filters: CockpitIntelligenceFilters = {}): 
       ],
     },
     attribution: {
+      postbackStatus: actionpayPhaseB.postback_status,
+      tokenRotationStatus: actionpayPhaseB.token_rotation_status,
       summary: [
         { label: 'Impressões hoje', value: number.format(attribution.impressions_today), detail: 'Cards efetivamente liberados para exibição' },
         { label: 'Cliques atribuídos', value: number.format(attribution.clicks_today), detail: `${percentage(attribution.clicks_today, attribution.impressions_today)} das impressões de hoje` },

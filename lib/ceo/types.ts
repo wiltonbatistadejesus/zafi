@@ -87,6 +87,8 @@ export type CockpitData = {
     reconciliation: Metric[]
   }
   attribution: {
+    postbackStatus: 'prepared_not_activated' | 'active'
+    tokenRotationStatus: 'awaiting_ceo_authorization' | 'authorized' | 'executing' | 'completed' | 'rolled_back' | 'not_planned'
     summary: Metric[]
     conversionStates: Metric[]
     finance: Metric[]

@@ -206,7 +206,7 @@ export default function Cockpit({ data }: { data: CockpitData }) {
         </Card>
 
         <Card className={styles.attribution}>
-          <SectionHeading icon="funnel" eyebrow="OE-004 · Atribuição" title="Da decisão ao resultado financeiro" aside={<span className={styles.integrationBadge}><StatusDot signal="attention" /> Postback preparado</span>} />
+          <SectionHeading icon="funnel" eyebrow="OE-004 · Atribuição" title="Da decisão ao resultado financeiro" aside={<span className={styles.integrationBadge}><StatusDot signal={data.attribution.tokenRotationStatus === 'completed' ? 'healthy' : data.attribution.postbackStatus === 'active' ? 'attention' : 'critical'} /> {data.attribution.tokenRotationStatus === 'completed' ? 'Actionpay integrada' : data.attribution.postbackStatus === 'active' ? 'Ativo - aguardando evento real' : 'Postback não ativado'}</span>} />
           <Metrics items={data.attribution.summary} compact />
           <Metrics items={data.attribution.conversionStates} compact />
           <div className={styles.financeStages}>
